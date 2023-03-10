@@ -1,0 +1,13 @@
+Server and client communicate via a command reply model
+Each command and reply is a json dict
+
+implemented:
+    {"command":"register player"} -> {"reply":<<new playerid>>}
+    {"command":"create game", "playerid": <<existing playerid>>, "public":<<common.boolstring>>} -> {"reply": <<new gameid>>}
+    {"command": "deregister player", "playerid": <<existing playerid>>} -> {"reply": <<common.boolstring>>}
+planned:
+    {"command":"join game", "playerid": <<existing playerid>>, "gameid": <<existing gameid>>} -> {"reply": <<common.boolstring>>}
+    {"command":"list games"} -> {"reply": [<<public game>>]}
+    {"command":"player info", "playerid": <<existing playerid>>} -> {"reply": << some sort of important data/stats + list of active games}
+    {"command":"game info", "gameid": <<existing gameid>>} -> {"reply": <<all important data such as players, whose move it is, general state>>}
+    {"command":"make move", "gameid": <<existing gameid>>, "move": <<move description>>} -> {"reply": <<common.boolstring>>}
