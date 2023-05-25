@@ -1,13 +1,47 @@
-Server and client communicate via a command reply model
-Each command and reply is a json dict
+Client und server kommunizieren über tcp auf port 12345.
+Wenn der client die verbindung aufbaut, erstellt der server automatisch ein spiel und bestätigt die existenz des spiels mit GAME_CREATED_REPLY
+Der Server sendet periodisch INFO_REPLY an den client.
+der client sendet mit MOVE_REQUEST züge an den server. die züge werden entweder mit MOVE_ACCEPTED_REPLY oder ILLEGAL_MOVE_REPLY bestätigt, allerdings können dazwischen beliebig viele andere pakete kommen.
+nach einem GAME_CREATED_REPLY bzw. DISCONNECT_REQUEST endet die verbindung sofort.
+Nach jedem zug (eigene und gegnerische) sendet der server ein INFO_REPLY
 
-implemented:
-    {"command":"register player"} -> {"reply":<<new playerid>>}
-    {"command":"create game", "playerid": <<existing playerid>>, "public":<<common.boolstring>>} -> {"reply": <<new gameid>>}
-    {"command": "deregister player", "playerid": <<existing playerid>>} -> {"reply": <<common.boolstring>>}
-planned:
-    {"command":"join game", "playerid": <<existing playerid>>, "gameid": <<existing gameid>>} -> {"reply": <<common.boolstring>>}
-    {"command":"list games"} -> {"reply": [<<public game>>]}
-    {"command":"player info", "playerid": <<existing playerid>>} -> {"reply": << some sort of important data/stats + list of active games}
-    {"command":"game info", "gameid": <<existing gameid>>} -> {"reply": <<all important data such as players, whose move it is, general state>>}
-    {"command":"make move", "gameid": <<existing gameid>>, "move": <<move description>>} -> {"reply": <<common.boolstring>>}
+Wenn KEEP_ALIVE_TIMEOUT ms lang kein paket beim client bzw server ankommt gilt die verbindung als unterbrochen und das spiel als aufgegeben(entspricht DISCONNECT_REQUEST, GAME_ENDED_REPLY). es gibt keine möglichkeit die verbindung erneut zu öffnen.
+
+
+
+BOARD[8] =
+0|1|2
+-----
+3|4|5
+-----
+6|7|8
+
+message: magic number (4 byte) message length (4 byte) message (message lenght byte utf-8)
+KEEP_ALIVE_TIMEOUT = 100
+MAGIC_NUMBER = 3476822097
+
+message:
+    #client -> handler
+    KEEP_ALIVE_REQUEST = 0
+    INFO_REQUEST = 1
+    DISCONNECT_REQUEST = 2
+    MOVE_REQUEST = 3
+    
+    #handler -> client
+    KEEP_ALIVE_REPLY = 0
+    INFO_REPLY = 1
+    GAME_CREATED_REPLY = 2
+    ILLEGAL_MOVE_REPLY = 3
+    MOVE_ACCEPTED_REPLY = 4
+    GAME_ENDED_REPLY = 5
+
+KEEP_ALIVE_REQUEST = {"request": KEEP_ALIVE_REQUEST}
+INFO_REQUEST = {"request": INFO_REQUEST}
+DISCONNECT_REQUEST = {"request": DISCONNECT_REQUEST}
+MOVE_REQUEST = {"request": MOVE_REQUEST, "move": MOVE}
+KEEP_ALIVE_REPLY = {"request": KEEP_ALIVE_REPLY}
+INFO_REPLY = {"request": INFO_REPLY, "state" : {"client_id": CLIENT_ID (int), "board": [8 int], "players": [CLIENT_ID, OPPONENT_ID (unknown order, int)], "to_move": CLIENT_ID or OPPONENT_ID (int), "turn_number": int, "status": {"winner": CLIENT_ID or OPPONENT_ID (int), "current_state": "playing" or "won", "reason": "Three-in-a-row" or "Forfeit"}}}
+GAME_CREATED_REPLY = {"request": GAME_CREATED_REPLY}
+ILLEGAL_MOVE_REPLY = {"request": ILLEGAL_MOVE_REPLY}
+MOVE_ACCEPTED_REPLY = {"request": MOVE_ACCEPTED_REPLY}
+GAME_ENDED_REPLY = {"request": GAME_ENDED_REPLY}
