@@ -16,9 +16,8 @@ BOARD[8] =
 -----
 6|7|8
 
-message: magic number (4 byte) message length (4 byte) message (message lenght byte utf-8)
+message:message length (4 byte) message (message lenght byte utf-8)
 KEEP_ALIVE_TIMEOUT = 100
-MAGIC_NUMBER = 3476822097
 
 message:
     #client -> handler
@@ -26,7 +25,6 @@ message:
     INFO_REQUEST = 1
     DISCONNECT_REQUEST = 2
     MOVE_REQUEST = 3
-    
     #handler -> client
     KEEP_ALIVE_REPLY = 0
     INFO_REPLY = 1
@@ -40,7 +38,7 @@ INFO_REQUEST = {"request": INFO_REQUEST}
 DISCONNECT_REQUEST = {"request": DISCONNECT_REQUEST}
 MOVE_REQUEST = {"request": MOVE_REQUEST, "move": MOVE}
 KEEP_ALIVE_REPLY = {"request": KEEP_ALIVE_REPLY}
-INFO_REPLY = {"request": INFO_REPLY, "state" : {"client_id": CLIENT_ID (int), "board": [8 int], "players": [CLIENT_ID, OPPONENT_ID (unknown order, int)], "to_move": CLIENT_ID or OPPONENT_ID (int), "turn_number": int, "status": {"winner": CLIENT_ID or OPPONENT_ID (int), "current_state": "playing" or "won", "reason": "Three-in-a-row" or "Forfeit"}}}
+INFO_REPLY = {"request": INFO_REPLY, "state" : {"client_id": CLIENT_ID (int), "board": [8 int], "players": [CLIENT_ID, OPPONENT_ID (unknown order, int)], "to_move": CLIENT_ID or OPPONENT_ID (int), "turn_number": int, "status": {"winner": CLIENT_ID or OPPONENT_ID (int) or null, "current_state": "playing" or "won" or "draw", "reason": "Three-in-a-row" or "Forfeit" or null or All-squares-filled}}}
 GAME_CREATED_REPLY = {"request": GAME_CREATED_REPLY}
 ILLEGAL_MOVE_REPLY = {"request": ILLEGAL_MOVE_REPLY}
 MOVE_ACCEPTED_REPLY = {"request": MOVE_ACCEPTED_REPLY}
