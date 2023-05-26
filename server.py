@@ -147,7 +147,7 @@ class GameManager:
         return False
     
     def run(self):
-        self.sendall(str(self))
+        self.sendall(GameManager.INFO_REPLY, self.game.copy())
         while True:
             sender, message, arguments = self.input_queue.get()
             if message == GameManager.DISCONNECT_REQUEST: #arguments = "disconnect" or "forfeit"
