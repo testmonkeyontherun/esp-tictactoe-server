@@ -119,7 +119,7 @@ class GameManager:
     GAME_ENDED_REPLY = 4
 
     def __init__(self, players):
-        self.thread = threading.Thread(target=self.init, args=(players))
+        self.thread = threading.Thread(target=self.init, args=(players,))
         self.thread.start()     
     
     def init(self, players):
@@ -206,7 +206,7 @@ def match_maker():
                 #randomized player1
                 if random.random() > 0.5:
                     current_request, next_request = next_request, current_request
-                players = current_request.player, next_request.player
+                players = (current_request.player, next_request.player)
                 new_game = GameManager(players)
 
 class ClientHandler:
