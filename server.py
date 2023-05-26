@@ -119,10 +119,15 @@ class GameManager:
     GAME_ENDED_REPLY = 4
 
     def __init__(self, players):
+        self.thread = threading.Thread(target=self.init, args=(players))
+        self.thread.start()     
+    
+    def init(self, players):
         self.input_queue = queue.Queue()
         self.players = players
         self.sendall(self.input_queue)
         self.game = Game([player.get_id() for player in players])
+        self.run()
 
     def sendall(self, message):
         for player in self.players:
@@ -203,8 +208,6 @@ def match_maker():
                     current_request, next_request = next_request, current_request
                 players = current_request.player, next_request.player
                 new_game = GameManager(players)
-                gamemaster = threading.Thread(target=new_game.run)
-                gamemaster.start()
 
 class ClientHandler:
     GAME_REQUEST_TIMEOUT = 100
@@ -224,6 +227,9 @@ class ClientHandler:
     GAME_ENDED_REPLY = 5
 
     def __init__(self, connection, address):
+        self.thread = threading.Thread(target=self.init, args=(connection, address))
+        self.thread.start()
+    def init(self, connection, address):
         self.last_outgoing_message_time = time.time() # the client does not care about internal matters
         
         self.connection = connection
@@ -236,7 +242,7 @@ class ClientHandler:
         self.game_state = "Searching Game"
 
         self.last_incoming_message_time = time.time() #don't hold your fuck ups against the client
-    
+        self.handle_client()
     def receive(self):
         try:
             message_length_bytes = self.connection.recv(4)
@@ -367,8 +373,6 @@ def server_frontend():
     while True:
         conn, addr = server.accept()
         new_handler = ClientHandler(conn, addr)
-        message_worker = threading.Thread(target=new_handler.handle_client)
-        message_worker.start()
         print(threading.active_count() - 2)
 
 if __name__ == "__main__":
