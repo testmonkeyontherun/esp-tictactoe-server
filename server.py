@@ -56,21 +56,22 @@ class Game:
         self.change_turn()
         return True
     def check_win(self):
-        if self.board[0] == self.board[1] and self.board[0] == self.board[2]:
+        won, winner = False, None
+        if self.board[0] == self.board[1] and self.board[0] == self.board[2] and self.board[0] is not None:
             won, winner = True, self.board[0]
-        elif self.board[3] == self.board[4] and self.board[3] == self.board[5]:
+        elif self.board[3] == self.board[4] and self.board[3] == self.board[5] and self.board[3] is not None:
             won, winner = True, self.board[3]
-        elif self.board[6] == self.board[7] and self.board[6] == self.board[8]:
+        elif self.board[6] == self.board[7] and self.board[6] == self.board[8] and self.board[6] is not None:
             won, winner = True, self.board[6]
-        elif self.board[0] == self.board[3] and self.board[0] == self.board[6]:
+        elif self.board[0] == self.board[3] and self.board[0] == self.board[6] and self.board[0] is not None:
             won, winner = True, self.board[0]
-        elif self.board[1] == self.board[4] and self.board[1] == self.board[7]:
+        elif self.board[1] == self.board[4] and self.board[1] == self.board[7] and self.board[1] is not None:
             won, winner = True, self.board[1]
-        elif self.board[2] == self.board[5] and self.board[2] == self.board[8]:
+        elif self.board[2] == self.board[5] and self.board[2] == self.board[8] and self.board[2] is not None:
             won, winner = True, self.board[2]
-        elif self.board[0] == self.board[4] and self.board[0] == self.board[8]:
+        elif self.board[0] == self.board[4] and self.board[0] == self.board[8] and self.board[0] is not None:
             won, winner = True, self.board[0]
-        elif self.board[2] == self.board[4] and self.board[2] == self.board[6]:
+        elif self.board[2] == self.board[4] and self.board[2] == self.board[6] and self.board[2] is not None:
             won, winner = True, self.board[2]
         if won:
             self.status = {"winner": winner, "current_state": "won", "reason": "Three-in-a-row"}
@@ -135,9 +136,9 @@ class GameManager:
     def get_player_by_id(self, id):
         for pos, player in enumerate(self.players):
             if id == player.get_id():
-                self.players[pos]
-            else:
-                raise Exception("Unknown Player")
+                return self.players[pos]
+        else:
+            raise Exception("Unknown Player")
     
     def make_move(self, player, move):
         if not self.game.move(player, move):
@@ -154,6 +155,7 @@ class GameManager:
         self.sendall((GameManager.INFO_REPLY, self.game.copy()))
         while True:
             sender, message, arguments = self.input_queue.get()
+            print(sender)
             if message == GameManager.DISCONNECT_REQUEST: #arguments = "disconnect" or "forfeit"
                 self.game.forfeit(sender)
                 self.sendall((GameManager.INFO_REPLY, self.game.copy()))
@@ -371,7 +373,7 @@ class ClientHandler:
                 if self.game_request.invalidate():
                     return
                 self.outgoing_queue = self.incoming_queue.get()
-        self.send_to_game(self.player.get_id(), GameManager.DISCONNECT_REQUEST, None)
+        self.send_to_game(GameManager.DISCONNECT_REQUEST, None)
 
 def server_frontend():
     match_maker_worker = threading.Thread(target=match_maker)
