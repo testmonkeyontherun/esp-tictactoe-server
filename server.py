@@ -135,7 +135,7 @@ class GameManager:
     def get_player_by_id(self, id):
         for pos, player in enumerate(self.players):
             if id == player.get_id():
-                return pos
+                self.players[pos]
             else:
                 raise Exception("Unknown Player")
     
@@ -240,6 +240,7 @@ class ClientHandler:
         self.player = Player(threading.get_ident(), self.incoming_queue)
         self.game_request = GameRequest(self.player)
         self.game_state = "Searching Game"
+        self.internal_queue = queue.Queue()
 
         self.last_incoming_message_time = time.time() #don't hold your fuck ups against the client
         self.handle_client()
@@ -302,6 +303,18 @@ class ClientHandler:
     def matchmaking_timed_out(self):
         return time.time() - self.game_request_time >= ClientHandler.GAME_REQUEST_TIMEOUT
     
+    def send_to_game(self, message, arguments):
+        if not self.game_exists:
+            self.internal_queue.put((self.player.get_id(), message, arguments))
+        else:
+            try:
+                while True:
+                    message = self.internal_queue.get_nowait()
+                    self.outgoing_queue.put(message)
+            except queue.Empty:
+                pass
+        self.outgoing_queue.put((self.player.get_id(), message, arguments))
+    
     def handle_client(self):
         """sanitizes commands sent by the client, also handles checking for lost connections via timeout"""
         pending_GameRequests.put(self.game_request)
@@ -317,7 +330,7 @@ class ClientHandler:
                 self.disconnect()
                 return
             elif request == ClientHandler.MOVE_REQUEST:
-                self.outgoing_queue.put((GameManager.MOVE_REQUEST, arguments))
+                self.send_to_game(GameManager.MOVE_REQUEST, arguments)
             #check if the client has timed out
             if self.client_timed_out():
                 self.disconnect()
@@ -358,7 +371,7 @@ class ClientHandler:
                 if self.game_request.invalidate():
                     return
                 self.outgoing_queue = self.incoming_queue.get()
-        self.outgoing_queue.put((self.player.get_id(), GameManager.DISCONNECT_REQUEST, None))
+        self.send_to_game(self.player.get_id(), GameManager.DISCONNECT_REQUEST, None)
 
 def server_frontend():
     match_maker_worker = threading.Thread(target=match_maker)

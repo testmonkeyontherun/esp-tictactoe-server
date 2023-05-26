@@ -79,7 +79,7 @@ class ServerHandler:
     def encode_message(self, message, arguments):
         message = {"request": message}
         if arguments is not None:
-            message = {"request": message} | arguments
+            message = message | arguments
         message_string = json.dumps(message)
         message_bytes = message_string.encode("utf-8")
         length_bytes = bytes(ctypes.c_uint32(len(message_bytes)))
@@ -106,7 +106,11 @@ class ServerHandler:
                 return
             #handle outgoing messages
             try:
-                pass
+                message = self.incoming_queue.get_nowait()
+                if message == "disconnect":
+                    self.send(ServerHandler.DISCONNECT_REQUEST, None)
+                else:
+                    self.send(ServerHandler.MOVE_REQUEST, {"move": message})
             except queue.Empty:
                 pass
             if self.is_time_to_send_keep_alive():
@@ -160,14 +164,18 @@ if __name__ == "__main__":
             message, arguments = server.outgoing_queue.get_nowait()
             if message == ServerHandler.INFO_REPLY:
                 draw_state(arguments)
+            else:
+                print(message)
 
         except queue.Empty:
             pass
 
         try:
-            messsage = user_input.get_nowait()
-
+            message = user_input.get_nowait()
+            try:
+                message = int(message)
+            except ValueError:
+                message = "disconnect"
+            server.incoming_queue.put(message)
         except queue.Empty:
             pass
-
-
