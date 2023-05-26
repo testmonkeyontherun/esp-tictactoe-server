@@ -119,7 +119,7 @@ class GameManager:
     GAME_ENDED_REPLY = 4
 
     def __init__(self, players):
-        self.thread = threading.Thread(target=self.init, args=(players,))
+        self.thread = threading.Thread(target=self.init, args=(players,), daemon=True)
         self.thread.start()     
     
     def init(self, players):
@@ -155,7 +155,6 @@ class GameManager:
         self.sendall((GameManager.INFO_REPLY, self.game.copy()))
         while True:
             sender, message, arguments = self.input_queue.get()
-            print(sender)
             if message == GameManager.DISCONNECT_REQUEST: #arguments = "disconnect" or "forfeit"
                 self.game.forfeit(sender)
                 self.sendall((GameManager.INFO_REPLY, self.game.copy()))
@@ -229,7 +228,7 @@ class ClientHandler:
     GAME_ENDED_REPLY = 5
 
     def __init__(self, connection, address):
-        self.thread = threading.Thread(target=self.init, args=(connection, address))
+        self.thread = threading.Thread(target=self.init, args=(connection, address), daemon=True)
         self.thread.start()
     def init(self, connection, address):
         self.last_outgoing_message_time = time.time() # the client does not care about internal matters
@@ -356,6 +355,7 @@ class ClientHandler:
                 elif reply[0] == GameManager.GAME_ENDED_REPLY:
                     self.send(ClientHandler.GAME_ENDED_REPLY, None)
                     self.connection.close()
+                    return
 
             except queue.Empty:
                 if not self.game_exists and self.matchmaking_timed_out():
@@ -376,7 +376,7 @@ class ClientHandler:
         self.send_to_game(GameManager.DISCONNECT_REQUEST, None)
 
 def server_frontend():
-    match_maker_worker = threading.Thread(target=match_maker)
+    match_maker_worker = threading.Thread(target=match_maker, daemon=True)
     match_maker_worker.start()
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(common.ADDR)

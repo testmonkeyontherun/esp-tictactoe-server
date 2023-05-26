@@ -35,7 +35,7 @@ class ServerHandler:
         client.connect(ADDR)
         self.last_incoming_message_time = time.time()
         self.last_outgoing_message_time = time.time()
-        self.thread = threading.Thread(target=self.handle_server)
+        self.thread = threading.Thread(target=self.handle_server, daemon=True)
         self.thread.start()
         self.connection.setblocking(False)
     
@@ -98,6 +98,10 @@ class ServerHandler:
             request, arguments = self.receive()
             if request is None or request == ServerHandler.KEEP_ALIVE_REPLY:
                 pass
+            elif request == ServerHandler.GAME_ENDED_REPLY:
+                self.connection.accept
+                self.outgoing_queue.put((request, arguments))
+                return
             else:
                 self.outgoing_queue.put((request, arguments))
             #check if the client has timed out
@@ -109,6 +113,10 @@ class ServerHandler:
                 message = self.incoming_queue.get_nowait()
                 if message == "disconnect":
                     self.send(ServerHandler.DISCONNECT_REQUEST, None)
+                    print("Disconnected")
+                    self.outgoing_queue.put((ServerHandler.GAME_ENDED_REPLY, None))
+                    self.connection.close()
+                    return
                 else:
                     self.send(ServerHandler.MOVE_REQUEST, {"move": message})
             except queue.Empty:
@@ -155,15 +163,26 @@ def draw_state(state):
 
 if __name__ == "__main__":
     server = ServerHandler(ADDR)
-    user_handler = threading.Thread(target=handle_user)
+    user_handler = threading.Thread(target=handle_user, daemon=True)
     user_handler.start()
     print("waiting for game!")
+    game = None
     
     while True:
         try:
             message, arguments = server.outgoing_queue.get_nowait()
             if message == ServerHandler.INFO_REPLY:
-                draw_state(arguments)
+                game = arguments
+                draw_state(game)
+            elif message == ServerHandler.GAME_CREATED_REPLY:
+                pass
+            elif message == ServerHandler.ILLEGAL_MOVE_REPLY:
+                print("illegal move!")
+                draw_state(game)
+            elif message == ServerHandler.MOVE_ACCEPTED_REPLY:
+                pass
+            elif message == ServerHandler.GAME_ENDED_REPLY:
+                sys.exit()
             else:
                 print(message)
 
