@@ -52,6 +52,7 @@ class ServerHandler:
             message_bytes = self.connection.recv(message_length)
             if len(message_bytes) != message_length:
                 return None, None
+            print(message_bytes)
             message, arguments = self.decode_message(message_bytes)
             if message is not None:
                 self.last_incoming_message_time = time.time()
@@ -99,7 +100,7 @@ class ServerHandler:
             if request is None or request == ServerHandler.KEEP_ALIVE_REPLY:
                 pass
             else:
-                self.outgoing_queue.put(request, arguments)
+                self.outgoing_queue.put((request, arguments))
             #check if the client has timed out
             if self.client_timed_out():
                 self.disconnect()
