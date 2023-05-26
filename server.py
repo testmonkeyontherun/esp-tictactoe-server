@@ -92,7 +92,7 @@ class Game:
         return self.status["current_state"] == "playing"
     
     def forfeit(self, player):
-        for index, current_player in enumerate(self.payers):
+        for index, current_player in enumerate(self.players):
             if current_player == player:
                 winning_index = index + 1
                 break
@@ -157,7 +157,7 @@ class GameManager:
             if message == GameManager.DISCONNECT_REQUEST: #arguments = "disconnect" or "forfeit"
                 self.game.forfeit(sender)
                 self.sendall((GameManager.INFO_REPLY, self.game.copy()))
-                self.sendall((GameManager.GAME_ENDED_REPLY))
+                self.sendall((GameManager.GAME_ENDED_REPLY, None))
                 return
             elif message == GameManager.INFO_REQUEST:
                 self.get_player_by_id(sender).send((GameManager.INFO_REPLY, self.game.copy()))
@@ -350,7 +350,7 @@ class ClientHandler:
                 self.send(ClientHandler.KEEP_ALIVE_REPLY, None)
                 pass
     
-    def disconnect(self):
+    def disconnect(self):#TODO somwhow crashes after client timeout
         print("connection closed")
         self.connection.close()
         if not self.game_exists:

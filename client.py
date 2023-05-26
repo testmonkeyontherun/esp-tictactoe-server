@@ -52,7 +52,6 @@ class ServerHandler:
             message_bytes = self.connection.recv(message_length)
             if len(message_bytes) != message_length:
                 return None, None
-            print(message_bytes)
             message, arguments = self.decode_message(message_bytes)
             if message is not None:
                 self.last_incoming_message_time = time.time()
@@ -119,8 +118,56 @@ class ServerHandler:
         sys.exit()
 
 
+user_input = queue.Queue()
+def handle_user():
+    while True:
+        user_input.put(input())
+
+def draw_state(state):
+    client_id = state["client_id"]
+    if state["players"][0] == client_id:
+        opponent_id = state["players"][1]
+    else:
+        opponent_id = state["players"][0]
+    symbols = {client_id: "x", opponent_id: "o", None: " "}
+    board = [symbols[cell] for cell in state["board"]]
+    print("{}|{}|{}\n-----\n{}|{}|{}\n-----\n{}|{}|{}\n".format(*board))
+
+    if state["status"]["current_state"] == "playing":
+        to_move = state["to_move"] == client_id
+        if to_move:
+            print("your_move: ")
+        else:
+            print("waiting for opponent!")
+    elif state["status"]["current_state"] == "draw":
+        print("draw")
+    else:
+        if state["status"]["winner"] == client_id:
+            print("you won for reason: " + state["status"]["reason"])
+        else:
+            print("you lost for reason: " + state["status"]["reason"])
+
+
+
 if __name__ == "__main__":
     server = ServerHandler(ADDR)
+    user_handler = threading.Thread(target=handle_user)
+    user_handler.start()
+    print("waiting for game!")
+    
     while True:
-        print(server.outgoing_queue.get())
+        try:
+            message, arguments = server.outgoing_queue.get_nowait()
+            if message == ServerHandler.INFO_REPLY:
+                draw_state(arguments)
+
+        except queue.Empty:
+            pass
+
+        try:
+            messsage = user_input.get_nowait()
+
+        except queue.Empty:
+            pass
+
 
