@@ -31,11 +31,10 @@ class Game:
         self.change_turn()
         
         #self.status = ("playing", None, None) #status (playing, won, draw), winner, (checkmate, draw, forfeit) 
-        pass
     def copy(self): #important to avoid races
-        game_to_return = Game([None])
-        game_to_return.players = self.players.copy()
+        game_to_return = Game(self.players.copy())
         game_to_return.turn_number = self.turn_number
+        game_to_return.to_move = self.to_move
         game_to_return.board = self.board.copy()
         game_to_return.status = self.status
         return game_to_return
@@ -126,7 +125,7 @@ class GameManager:
         self.input_queue = queue.Queue()
         self.players = players
         self.sendall(self.input_queue)
-        self.game = Game([player.get_id() for player in players])
+        self.game = Game([player.get_id() for player in self.players])
         self.run()
 
     def sendall(self, message):
@@ -254,11 +253,9 @@ class ClientHandler:
             if message_length > 10000:
                 raise Exception("big message incoming")
             message_bytes = self.connection.recv(message_length)
-            print(message_bytes, message_length, len(message_bytes))
             if len(message_bytes) != message_length:
                 return None, None
             message, arguments = self.decode_message(message_bytes)
-            print(message)
             if message is not None:
                 self.last_incoming_message_time = time.time()
             return message, arguments
@@ -267,7 +264,6 @@ class ClientHandler:
     
     def send(self, message, arguments):
         message = self.encode_message(message, arguments)
-        print(message)
         self.connection.send(message)
         self.last_outgoing_message_time = time.time()
     
