@@ -25,6 +25,7 @@ message:
     INFO_REQUEST = 1
     DISCONNECT_REQUEST = 2
     MOVE_REQUEST = 3
+    
     #handler -> client
     KEEP_ALIVE_REPLY = 0
     INFO_REPLY = 1
