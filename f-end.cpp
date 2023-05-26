@@ -33,7 +33,7 @@ void setup() {
   display.setTextColor(WHITE);
 
   // Initialisiere die Knöpfe
-  pinMode(buttonUpPin, INPUT_PULLUP);
+  pinMode(buttonUpPin, INPUT_PULL);
   pinMode(buttonDownPin, INPUT_PULLUP);
   pinMode(buttonLeftPin, INPUT_PULLUP);
   pinMode(buttonRightPin, INPUT_PULLUP);
