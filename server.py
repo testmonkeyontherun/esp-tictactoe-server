@@ -207,6 +207,7 @@ def match_maker():
                     current_request, next_request = next_request, current_request
                 players = (current_request.player, next_request.player)
                 new_game = GameManager(players)
+                current_request = None
 
 class ClientHandler:
     GAME_REQUEST_TIMEOUT = 100
