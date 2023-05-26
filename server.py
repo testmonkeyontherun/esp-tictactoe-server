@@ -190,25 +190,23 @@ pending_GameRequests = queue.Queue()
 def match_maker():
     current_request = None
     while True: # might add players to game until the game decides that it is full? better for compat TODO
-        next_request = pending_GameRequests.get()
-        if current_request is None:
-            current_request = next_request
-            continue
-        with current_request.lock:
-            if not current_request.is_valid():
-                current_request = next_request
-                continue
-            with next_request.lock:
-                if not next_request.is_valid():
+        if pending_GameRequests.qsize() >= 2:
+            current_request = pending_GameRequests.get()
+            with current_request.lock:
+                if not current_request.is_valid():
                     continue
-                current_request.resolve()
-                next_request.resolve()
-                #randomized player1
-                if random.random() > 0.5:
-                    current_request, next_request = next_request, current_request
-                players = (current_request.player, next_request.player)
-                new_game = GameManager(players)
-                current_request = None
+                next_request = pending_GameRequests.get()
+                with next_request.lock:
+                    if not next_request.is_valid():
+                        pending_GameRequests.put(current_request)
+                        continue
+                    current_request.resolve()
+                    next_request.resolve()
+                    #randomized player1
+                    if random.random() > 0.5:
+                        current_request, next_request = next_request, current_request
+                    players = (current_request.player, next_request.player)
+                    new_game = GameManager(players)
 
 class ClientHandler:
     GAME_REQUEST_TIMEOUT = 100
