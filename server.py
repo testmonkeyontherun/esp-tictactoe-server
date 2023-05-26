@@ -147,7 +147,7 @@ class GameManager:
         return False
     
     def run(self):
-        self.sendall(GameManager.INFO_REPLY, self.game.copy())
+        self.sendall((GameManager.INFO_REPLY, self.game.copy()))
         while True:
             sender, message, arguments = self.input_queue.get()
             if message == GameManager.DISCONNECT_REQUEST: #arguments = "disconnect" or "forfeit"
@@ -254,15 +254,14 @@ class ClientHandler:
             message, arguments = self.decode_message(message_bytes)
             print(message)
             if message is not None:
-                print(self.last_incoming_message_time)
                 self.last_incoming_message_time = time.time()
-                print(self.last_incoming_message_time)
             return message, arguments
         except BlockingIOError:
             return None, None
     
     def send(self, message, arguments):
         message = self.encode_message(message, arguments)
+        print(message)
         self.connection.send(message)
         self.last_outgoing_message_time = time.time()
     
@@ -281,7 +280,7 @@ class ClientHandler:
     def encode_message(self, message, arguments):
         message = {"request": message}
         if arguments is not None:
-            message = {"request": message} | arguments
+            message = message | arguments
         message_string = json.dumps(message)
         message_bytes = message_string.encode("utf-8")
         length_bytes = bytes(ctypes.c_uint32(len(message_bytes)))
@@ -289,7 +288,7 @@ class ClientHandler:
 
     
     def encode_game(self):
-        return self.game_state.encode() | {"client_id": self.player.get_id()}
+        return {"state": self.game_state.encode() | {"client_id": self.player.get_id()}}
 
     def client_timed_out(self):
         return time.time() - self.last_incoming_message_time >= ClientHandler.KEEP_ALIVE_TIMEOUT
