@@ -12,7 +12,7 @@
 // Konstanten
 #define ssid = "platzhalter"
 #define password = "platzhalter"
-
+#define SERVER_IP = "platzhalter"
 
 
 
