@@ -36,6 +36,8 @@ int selectedX = 0;
 int selectedY = 0;
 int submenu_option = 0;
 
+int board[3][3] = {{0}, {0}, {0}};
+
 //state relevant to server commmunication
   // Konstanten
 #define ssid = "platzhalter"
@@ -126,7 +128,7 @@ void loop(){
           play_sound_failure();
         }
       } else if (new_buttons[buttonDownPin]) {
-        if (selectedY < 8) {
+        if (selectedY < 2) {
           ++selectedY;
           play_sound_move();
         } else {
@@ -140,7 +142,7 @@ void loop(){
           play_sound_failure();
         }
       } else if (new_buttons[buttonRightPin]) {
-        if (selectedX < 8) {
+        if (selectedX < 2) {
           ++selectedX;
           play_sound_move();
         } else {
@@ -200,8 +202,23 @@ void loop(){
       }
     }
     //draw board / menus
+    display.clearDisplay();
     if (current_menu == board) {
-      //TODO draw BOARD
+        display.drawLine(21, 0, 21, 64, WHITE);
+        display.drawLine(42, 0, 42, 64, WHITE);
+        display.drawLine(0, 21, 0, 64, WHITE);
+        display.drawLine(0, 42, 0, 64, WHITE);
+
+        for (int x = 0; x < 3; ++x) {
+          for (int y = 0; y < 3; ++y) {
+            if (x == selectedX && y = selectedY) {
+              //draw active cell
+            } else if (board[y][x] == 1) {
+              //draw x 
+            }
+          }
+        }
+        
     } else if (current_menu == FORFEIT) {
       //TODO draw forfeit
     } else if (current_menu == MOVE) {
