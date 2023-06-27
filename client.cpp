@@ -35,7 +35,7 @@ enum current_menu current_menu = BOARD;
 int selectedX = 0;
 int selectedY = 0;
 int submenu_option = 0;
-
+int square_width = 21;
 int board[3][3] = {{0}, {0}, {0}};
 
 //state relevant to server commmunication
@@ -213,6 +213,12 @@ void loop(){
           for (int y = 0; y < 3; ++y) {
             if (x == selectedX && y = selectedY) {
               //draw active cell
+              int upper_x = x * square_width;
+              int lower_x = upper_x + square_width;
+              int upper_y = y * square_width;
+              int lower_y = upper_y + square_width;
+              display.fillrect(upper_x, upper_y, lower_x, lower_y);
+              
             } else if (board[y][x] == 1) {
               //draw x 
             }
