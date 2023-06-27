@@ -208,19 +208,29 @@ void loop(){
         display.drawLine(42, 0, 42, 64, WHITE);
         display.drawLine(0, 21, 0, 64, WHITE);
         display.drawLine(0, 42, 0, 64, WHITE);
+        //textgröße hier anpassen////
 
         for (int x = 0; x < 3; ++x) {
           for (int y = 0; y < 3; ++y) {
+            int upper_x = x * square_width;
+            int upper_y = y * square_width;
             if (x == selectedX && y = selectedY) {
               //draw active cell
-              int upper_x = x * square_width;
               int lower_x = upper_x + square_width;
-              int upper_y = y * square_width;
               int lower_y = upper_y + square_width;
               display.fillRect(upper_x, upper_y, lower_x, lower_y);
-              
-            } else if (board[y][x] == 1) {
-              //draw x 
+              display.setTextColor(black);
+            } else {
+              display.setTextColor(weiß);
+            }
+            if (board[y][x] == 1) {
+              //draw x
+              display.setCursor(upper_x, upper_y);
+              display.println("X");
+            } else if (board[y][x] == 2) {
+              //draw o
+              display.setCursor(upper_x, upper_y);
+              display.println("O");
             }
           }
         }
