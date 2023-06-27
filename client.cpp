@@ -217,7 +217,7 @@ void loop(){
               int lower_x = upper_x + square_width;
               int upper_y = y * square_width;
               int lower_y = upper_y + square_width;
-              display.fillrect(upper_x, upper_y, lower_x, lower_y);
+              display.fillRect(upper_x, upper_y, lower_x, lower_y);
               
             } else if (board[y][x] == 1) {
               //draw x 
