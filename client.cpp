@@ -43,6 +43,11 @@ int board[3][3] = {{0}, {0}, {0}};
 #define ssid = "platzhalter"
 #define password = "platzhalter"
 #define SERVER_IP = "platzhalter"
+  //messages
+  enum server_message {KEEP_ALIVE_REPLY = 0, INFO_REPLY = 1, GAME_CREATED_REPLY = 2, ILLEGAL_MOVE_REPLY = 3, MOVE_ACCEPTED_REPLY = 4, GAME_ENDED_REPLY = 5};
+  enum client_message {KEEP_ALIVE_REQUEST = 0, INFO_REQUEST = 1, DISCONNECT_REQUEST = 2, MOVE_REQUEST = 3};
+  int message_length_width = 4;
+  int max_message_length = 1000;
   // Verbindungsdetails vom Server
 IPAddress serverIP(192, 168, 1, SERVER_IP);
 int serverPort = 12345;
@@ -51,6 +56,38 @@ WifiClient client;
 unsigned long server_polling_interval = 10;
 unsigned long last_server_poll = 0;
 
+void read_message_into_buffer(size_t buffer_size, char* buffer, size_t n_bytes) {
+  //n_bytes <= buffer_size
+  
+  for (int i = 0; i < n_bytes && i < buffer_size; ++i) {
+    buffer[i] = client.read();
+  }
+}
+
+char buffer[max_message_length] = {0};
+sometype receive_message() {
+  if (!client.connected()) {
+    //TODO ERROR HERE
+    return;
+  }
+  if (client.available() < message_length_width) { //minimum message length
+    //TODO EMPTY RETURN
+    return;
+  }
+  read_message_into_buffer(max_message_length, buffer, message_length_width);
+  int message_length = (int) *buffer;
+  //TODO validate if this needs format changing
+  if (message_length > max_message_length) {
+    //TODO Invalid message
+    return;
+  }
+  if (client.available() < message_length) {
+    //TODO Invalid message
+    return;
+  }
+  read_message_into_buffer(max_message_length, buffer, message_length);
+  
+}
 
 /*
  * Intialisiert Verbindung WiFi -> Server
@@ -76,17 +113,14 @@ void setup(){
     Serial.println("Verbunden.");
 
     // Serververbindung herstellen
-    if (client.connect(serverIP, serverPort)){
-        Serial.println("Verbindung mit Server hergestellt.");
-        createGame();
-        setInterval(getServerInfo, 1000);
-    } else{
-        Serial.println("Verbindung zu Server fehlgeschlagen.");
+    display.setCursor(0,0);
+    display.println("Serververbindung wird aufgebaut");
+    while(!client.connect(serverIP, serverPort)) {
+      //TODO funny animation here ?
+      delay(1000);
     }
+    //wait for GAME_CREATED_REPLY
 }
-
-
-
 
 //state relevant to server_communication
 void loop(){
