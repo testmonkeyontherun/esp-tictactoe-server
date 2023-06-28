@@ -97,7 +97,7 @@ void loop(){
     //check for new button presses since last cycle
     for (size_t button = 0; button < number_of_buttons; ++button) {
         new_buttons[button] = false;
-        if digitaRead(button_pins[button]) == high) {
+        if digitaRead((button_pins[button]) == high) {
           if (pressed_buttons[button] == false) {
             new_buttons[button] = true;
           }
@@ -219,9 +219,9 @@ void loop(){
               int lower_x = upper_x + square_width;
               int lower_y = upper_y + square_width;
               display.fillRect(upper_x, upper_y, lower_x, lower_y);
-              display.setTextColor(black);
+              display.setTextColor(BLACK);
             } else {
-              display.setTextColor(weiß);
+              display.setTextColor(WHITE);
             }
             if (board[y][x] == 1) {
               //draw x
