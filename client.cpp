@@ -318,3 +318,8 @@ void loop(){
     //TODO alles andere
   }
 }
+
+void aufgeben() {
+  // @Jakob
+
+}
