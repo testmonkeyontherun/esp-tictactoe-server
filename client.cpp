@@ -29,20 +29,23 @@ const int button_pins[number_of_buttons] = {2, 3, 4, 5, 6, 7};
 enum current_menu {BOARD, MOVE, FORFEIT};
 bool pressed_buttons[number_of_buttons] = {false};
 bool new_buttons[number_of_buttons] = {0};
-unsigned long player_polling_interval = 100;
+const unsigned long player_polling_interval = 100;
 unsigned long last_player_poll = 0;
 enum current_menu current_menu = BOARD;
 int selectedX = 0;
 int selectedY = 0;
 int submenu_option = 0;
-int square_width = 21;
+const int square_width = 21;
 int board[3][3] = {{0}, {0}, {0}};
 
 //state relevant to server commmunication
 const char* ssid =  "platzhalter";
 const char* password = "platzhalter";
 IPAddress serverIP(192, 168, 3, 125);
-int serverPort = 12345;
+const int serverPort = 12345;
+const unsigned long server_timeout_time = 100;
+unsigned long last_server_message_timestamp = 0;
+unsigned long last_client_message_timestamp = 0;
 WiFiClient client;
 
 unsigned long server_polling_interval = 10;
@@ -52,6 +55,9 @@ unsigned long last_server_poll = 0;
   enum client_message {KEEP_ALIVE_REQUEST = 0, INFO_REQUEST = 1, DISCONNECT_REQUEST = 2, MOVE_REQUEST = 3};
   const int message_length_width = 4;
   const int max_message_length = 1000;
+
+
+
 void play_sound_success(); //TODO
 void play_sound_failure();
 void play_sound_move();
@@ -69,7 +75,7 @@ void read_message_into_buffer(size_t buffer_size, char* buffer, size_t n_bytes) 
 }
 
 char receive_buffer[max_message_length] = {0};
-bool receive_message(JsonDocument result) { //TODO
+bool receive_message(DynamicJsonDocument result) { //TODO
   if (!client.connected()) {
     //TODO ERROR HERE
     return false;
@@ -89,11 +95,18 @@ bool receive_message(JsonDocument result) { //TODO
     return false;
   }
   read_message_into_buffer(max_message_length, receive_buffer, message_length);
-  deserializeJson(result, (const char *) receive_buffer, message_length);
+  DeserializationError error = deserializeJson(result, (const char *) receive_buffer, message_length);
+  if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return false;
+  }
+  last_server_message_timestamp = millis();
   return true;
 }
 char send_buffer[max_message_length + message_length_width] = {0};
-bool send_message(JsonDocument message) {
+
+bool send_message(DynamicJsonDocument message) {
   if (!client.connected()) {
     //TODO raise errors
     return false;
@@ -103,11 +116,21 @@ bool send_message(JsonDocument message) {
   for (int i = 0; i < message_length + message_length_width; ++i) {
     client.write(send_buffer[i]);
   }
+  last_client_message_timestamp = millis();
   return true;
 }
 
-void send_keep_alive_message() {
+bool send_basic_request(enum client_message request) {
+  StaticJsonDocument<16> message;
+  message["request"] = request;
+  return send_message(message);
+}
 
+bool send_move_request(int move) {
+  StaticJsonDocument<32> message;
+  message["request"] = 0;
+  message["move"] = move;
+  return send_message(message);
 }
 
 /*
@@ -140,6 +163,7 @@ void setup(){
       //TODO funny animation here ?
       delay(1000);
     }
+    last_server_message_timestamp = millis();
     //wait for GAME_CREATED_REPLY
 }
 
@@ -297,6 +321,24 @@ void loop(){
   //handle server communication
   if (millis() - last_server_poll >= player_polling_interval) {
     last_player_poll = millis();
-    //TODO alles andere
+    //handle incoming messages
+    StaticJsonDocument<384> message;
+    bool received_message = receive_message(message);
+    if (received_message) {
+
+      enum server_message reply_type = message["request"];
+      if (reply_type == KEEP_ALIVE_REPLY) {
+
+      } else {
+        //TODO handle all types of replys
+      }
+    }
+    if (millis() - last_server_message_timestamp >= server_timeout_time) {
+      //TODO handle server disconnect
+    }
+    //TODO handle outgoing messages
+    if (millis() - last_client_message_timestamp >= server_timeout_time / 2) {
+      send_basic_request(KEEP_ALIVE_REQUEST);
+    }
   }
 }
