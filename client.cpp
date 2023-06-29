@@ -69,39 +69,45 @@ void read_message_into_buffer(size_t buffer_size, char* buffer, size_t n_bytes) 
 }
 
 char receive_buffer[max_message_length] = {0};
-JsonDocument receive_message() { //TODO
+bool receive_message(JsonDocument result) { //TODO
   if (!client.connected()) {
     //TODO ERROR HERE
-    return;
+    return false;
   }
   if (client.available() < message_length_width) { //minimum message length
-    //TODO EMPTY RETURN
-    return;
+    return false;
   }
   read_message_into_buffer(max_message_length, receive_buffer, message_length_width);
   int message_length = (int) *receive_buffer;
   //TODO validate if this needs format changing
   if (message_length > max_message_length) {
     //TODO Invalid message
-    return;
+    return false;
   }
   if (client.available() < message_length) {
     //TODO Invalid message
-    return;
+    return false;
   }
   read_message_into_buffer(max_message_length, receive_buffer, message_length);
-  
+  deserializeJson(result, (const char *) receive_buffer, message_length);
+  return true;
 }
-char send_buffer[max_message_length + message_lenght_width] = {0};
-void send_message(JsonDocument message) {
+char send_buffer[max_message_length + message_length_width] = {0};
+bool send_message(JsonDocument message) {
   if (!client.connected()) {
     //TODO raise errors
-    return;
+    return false;
   }
-  int message_length = serializeJson(message, &send_buffer + message_length_width, max_message_lenght);
-  (int) send_buffer = message_length;
-  for (int i = 0; i < message_lenght + message_length_width; ++i);
-  client.write(send_buffer[i]);
+  int message_length = serializeJson(message, send_buffer + message_length_width, max_message_length);
+  *((int*) send_buffer) = message_length;
+  for (int i = 0; i < message_length + message_length_width; ++i) {
+    client.write(send_buffer[i]);
+  }
+  return true;
+}
+
+void send_keep_alive_message() {
+
 }
 
 /*
