@@ -22,8 +22,8 @@ void setup(){
   struct task handle_sound_task = {.task_function = &handle_sound, .call_interval_in_millis = sound_polling_interval, .last_call_timestamp = 0};
   struct task tasks[] = {handle_server_task, handle_player_task, handle_sound_task};
   size_t n_tasks = sizeof(tasks) / sizeof(tasks[0]);
-  setup_player();
   setup_sound();
+  setup_player();
   setup_server();
   multitask(tasks, n_tasks);
 }
