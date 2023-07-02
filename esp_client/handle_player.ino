@@ -63,7 +63,6 @@ void handle_player() {
   }
   //drawing
   menus[current_menu].draw(menus[current_menu], selected_x, selected_y);
-
 }
 
 void switch_menu(enum menu_types new_menu) {
@@ -117,115 +116,56 @@ void try_forfeit() {
 }
 
 
-void draw_board(struct menu menu, int selected_x, int selected_y);
-
-void draw_text_menu(struct menu menu, int selected_x, int selected_y);
-
-void handle_player_bak() {
-  //draw board / menus
+void draw_board(struct menu menu, int selected_x, int selected_y) {
   display.clearDisplay();
-  if (current_menu == BOARD) {
-    display.drawLine(21, 0, 21, 64, WHITE);
-    display.drawLine(42, 0, 42, 64, WHITE);
-    display.drawLine(0, 21, 0, 64, WHITE);
-    display.drawLine(0, 42, 0, 64, WHITE);
-    //todo textgröße hier anpassen////
+  display.drawLine(21, 0, 21, 64, WHITE);
+  display.drawLine(42, 0, 42, 64, WHITE);
+  display.drawLine(0, 21, 0, 64, WHITE);
+  display.drawLine(0, 42, 0, 64, WHITE);
+  //todo textgröße hier anpassen////
 
-    for (int x = 0; x < 3; ++x) {
-      for (int y = 0; y < 3; ++y) {
-        int upper_x = x * square_width;
-        int upper_y = y * square_width;
-        if (x == selectedX && y == selectedY) {
-          //draw active cell
-          display.fillRect(upper_x, upper_y, square_width, square_width, WHITE);
-          display.setTextColor(BLACK);
-        } else {
-          display.setTextColor(WHITE);
-        }
-        if (board[y][x] == 1) {
-          //draw x
-          display.setCursor(upper_x, upper_y);
-          display.println("X");
-        } else if (board[y][x] == 2) {
-          //draw o
-          display.setCursor(upper_x, upper_y);
-          display.println("O");
-        }
-      }
-    }
-  } else if (current_menu == FORFEIT) {
-    const char* menuOptions[NUM_Options] = {"JA", "NEIN"};
-    int selectedOption = 0;
-    for (int x = 0; x < 2; x++) {
-      if (x == selectedOption) {
-        display.print("→");
+  for (int x = 0; x < 3; ++x) {
+    for (int y = 0; y < 3; ++y) {
+      int upper_x = x * square_width;
+      int upper_y = y * square_width;
+      if (x == selected_x && y == selected_y) {
+        //draw active cell
+        display.fillRect(upper_x, upper_y, square_width, square_width, WHITE);
+        display.setTextColor(BLACK);
       } else {
-        display.print(" ");
+        display.setTextColor(WHITE);
       }
-      display.println(menuOptions[x]);
-
+      if (board[y][x] == 1) {
+        //draw x
+        display.setCursor(upper_x, upper_y);
+        display.println("X");
+      } else if (board[y][x] == 2) {
+        //draw o
+        display.setCursor(upper_x, upper_y);
+        display.println("O");
+      }
     }
-    display.display();
+  }
+}
 
-    if(digitalRead(buttonLeftPin) == LOW) {
-      selectedOption = (selectedOption + NUM_Options - 1) % NUM_Options;
-      delay(/*hier noch einfügen, da SKT unklar*/);
-    } else if (digitalRead(buttonRightPin) == LOW) {
-      selectedOption = (selectedOption + 1) % NUM_Options;
-      delay(/*hier noch einfügen, da SKT unklar*/);
-    } else if (digitalRead(buttonAPin) == LOW) {
-
-      if(selectedOption == 0) {
-        //Aktion für JA - Verbindung trennen?
-        
-      } else if (selectedOption == 1) {
-        //aktion für Nein - zurück zum Spielboard
-      }
-
-      delay(/*hier noch einfügen, da SKT unklar*/);
-
+void draw_text_menu(struct menu menu, int selected_x, int selected_y) {
+  //TODO tune textsize and offset
+  const int text_menu_text_size = 10;
+  const int text_menu_y_offset = 1;
+  const int text_menu_x_offset = 1;
+  display.setTextSize(text_menu_text_size);
+  display.clearDisplay();
+  for (size_t i = 0; i < menu.height; ++i) {
+    int upper_y = i * (text_menu_text_size + text_menu_y_offset * 2);
+    int upper_x = text_menu_x_offset;
+    if (selected_y == i) {
+      //draw active cell
+      display.fillRect(upper_x, upper_y, SCREEN_WIDTH - text_menu_x_offset * 2, text_menu_text_size + text_menu_y_offset * 2, WHITE);
+      display.setTextColor(BLACK);
+    } else {
+      display.setTextColor(WHITE);
     }
-
-
-  } else if (current_menu == MOVE) {
-    const char* menuOptionsForMove[MOVEMENU_OPTIONS] = {"JA", "NEIN"};
-    int selectedMoveOption = 0;
-    bool MoveLoggedIn = false;
-
-    for (int x = 0; x < MOVEMENU_OPTIONS; i++) {
-      if(i == selectedOption) {
-        display.print("→");
-      } else {
-        display.print(" ");
-      }
-      display.println(menuOptionsForMove[x]);
-    }
-
-    display.display();
-
-    if (digitalRead(buttonLeftPin) == LOW) {
-
-      selectedMoveOption = (selectedMoveOption + MOVEMENU_OPTIONS - 1) % MOVEMENU_OPTIONS;
-      delay(/*hier noch einfügen, da SKT unklar*/);
-
-    } else if (digitalRead(buttonRightPin) == LOW) {
-
-      selectedMoveOption = (selectedMoveOption + MOVEMENU_OPTIONS + 1) % NUM_Options;
-      delay(/*hier noch einfügen, da SKT unklar*/);
-    
-    } else if (digitalRead(buttonDownPin) == LOW) {
-      
-      if (selectedMoveOption == 0) {
-
-        MoveLoggedIn = true;
-      } else if (selectedMoveOption == 1) {
-        // Zug nicht einloggen - zurück zum spielboard
-      }
-
-      delay(/*hier noch einfügen, da SKT unklar*/);
-      // Spiel fortsetzen
-
-
-    } 
+    display.setCursor(upper_x, upper_y + text_menu_y_offset);
+    display.println(menu.entrys[i].name);
   }
 }

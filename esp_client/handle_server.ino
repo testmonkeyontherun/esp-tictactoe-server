@@ -23,28 +23,23 @@ void setup_server() {
 }
 
 void handle_server() {
-  //handle server communication
-  if (millis() - last_server_poll >= player_polling_interval) {
-    last_player_poll = millis();
-    //handle incoming messages
-    StaticJsonDocument<384> message;
-    bool received_message = receive_message(message);
-    if (received_message) {
+  //handle incoming messages
+  StaticJsonDocument<384> message;
+  bool received_message = receive_message(message);
+  if (received_message) {
 
-      enum server_message reply_type = message["request"];
-      if (reply_type == KEEP_ALIVE_REPLY) {
+    enum server_message reply_type = message["request"];
+    if (reply_type == KEEP_ALIVE_REPLY) {
 
-      } else {
-        //TODO handle all types of replys
-      }
+    } else {
+      //TODO handle all types of replys
     }
-    if (millis() - last_server_message_timestamp >= server_timeout_time) {
-      //TODO handle server disconnect
-    }
-    //TODO handle outgoing messages
-    if (millis() - last_client_message_timestamp >= server_timeout_time / 2) {
-      send_basic_request(KEEP_ALIVE_REQUEST);
-    }
+  }
+  if (millis() - last_server_message_timestamp >= server_timeout_time) {
+    //TODO handle server disconnect
+  }
+  if (millis() - last_client_message_timestamp >= server_timeout_time / 2) {
+    send_basic_request(KEEP_ALIVE_REQUEST);
   }
 }
 void read_message_into_buffer(size_t buffer_size, char* buffer, size_t n_bytes) {
