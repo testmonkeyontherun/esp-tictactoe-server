@@ -113,8 +113,3 @@ bool send_move_request(int move) {
   message["move"] = move;
   return send_message(message);
 }
-
-void aufgeben() {
-  // @Jakob
-
-}

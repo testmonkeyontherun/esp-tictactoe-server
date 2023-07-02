@@ -32,24 +32,28 @@ void handle_player() {
   if (new_buttons[buttonUpPin]) {
     if (selected_y > 0) {
       --selected_y;
+      play_sound_move();
     }
   }
-  if (new_buttons[buttonDonwPin]) {
+  if (new_buttons[buttonDownPin]) {
     if (selected_y < menus[current_menu].height) {
       ++selected_y;
+      play_sound_move();
     }
   }
   if (new_buttons[buttonLeftPin]) {
     if (selected_x > 0) {
       --selected_x;
+      play_sound_move();
     }
   }
   if (new_buttons[buttonRightPin]) {
     if (selected_x < menus[current_menu].width) {
       ++selected_x;
+      play_sound_move();
     }
   }
-  size_t current_selection_index = selected_y * width + selected_x
+  size_t current_selection_index = selected_y * menus[current_menu].width + selected_x;
   //has to be only computed once despite menu switching, because only one selection is valid at a time.
   struct menu_entry current_entry = menus[current_menu].entrys[current_selection_index];
   if (new_buttons[buttonAPin]) {
@@ -62,103 +66,62 @@ void handle_player() {
 
 }
 
-void handle_player_bak() {
-  
-  //menu navigation
-  if (current_menu == BOARD) {
-    if (new_buttons[buttonBPin]) {
-      current_menu = FORFEIT;
-      submenu_option = 0;
-      play_sound_success();
-    } else if (new_buttons[buttonAPin]) {
-      if (board[selectedY][selectedX] == 0) {
-        current_menu = MOVE;
-        submenu_option = 0;
-        play_sound_success();
-      } else {
-        play_sound_failure();
-      }
-    } else if (new_buttons[buttonUpPin]) {
-      if (selectedY > 0) {
-        --selectedY;
-        play_sound_move();
-      } else {
-        play_sound_failure();
-      }
-    } else if (new_buttons[buttonDownPin]) {
-      if (selectedY < 2) {
-        ++selectedY;
-        play_sound_move();
-      } else {
-        play_sound_failure();
-      }
-    } else if (new_buttons[buttonLeftPin]) {
-      if (selectedX > 0) {
-        --selectedX;
-        play_sound_move();
-      } else {
-        play_sound_failure();
-      }
-    } else if (new_buttons[buttonRightPin]) {
-      if (selectedX < 2) {
-        ++selectedX;
-        play_sound_move();
-      } else {
-        play_sound_failure();
-      }
-    }
-  } else if(current_menu == MOVE) {
-    if (new_buttons[buttonBPin]) {
-      current_menu = BOARD;
-      play_sound_success();
-    } else if (new_buttons[buttonAPin]) {
-      if (submenu_option == 0) {
-        current_menu = BOARD;
-      } else if(submenu_option == 1) {
-        make_move(); //TODO
-      }
-      play_sound_success();
-    } else if (new_buttons[buttonUpPin]) {
-      if (submenu_option == 0) {
-        submenu_option = 1;
-        play_sound_move();
-      } else {
-        play_sound_failure();
-      }
-    } else if (new_buttons[buttonDownPin]) {
-      if (submenu_option == 1) {
-        submenu_option = 0;
-        play_sound_move();
-      } else {
-        play_sound_failure();
-      }
-    }
-  } else if (current_menu == FORFEIT) {
-    if (new_buttons[buttonBPin]) {
-      current_menu = BOARD;
-    } else if (new_buttons[buttonAPin]) {
-      if (submenu_option == 0) {
-        current_menu = BOARD;
-      } else if(submenu_option == 1) {
-        forfeit(); //TODO
-      }
-      play_sound_success();
-    } else if (new_buttons[buttonUpPin]) {
-      if (submenu_option == 0) {
-        submenu_option = 1;
-        play_sound_move();
-      } else {
-        play_sound_failure();
-      }
-    } else if (new_buttons[buttonDownPin]) {
-      if (submenu_option == 1) {
-        submenu_option = 0;
-        play_sound_move();
-      } else {
-        play_sound_failure();
-      }
-    }
+void switch_menu(enum menu_types new_menu) {
+  current_menu = new_menu;
+  if (new_menu == BOARD) {
+    selected_x = board_x;
+    selected_y = board_y;
+  } else {
+    board_x = selected_x;
+    board_y = selected_y;
+    selected_x = 0;
+    selected_y = 0;
   }
+}
+
+void board_a_pressed() {
+  if (board[selected_y][selected_x] == 0) {
+    switch_menu(MOVE);
+    play_sound_success();
+  } else {
+    play_sound_failure();
+  }
+}
+
+void board_b_pressed() {
+  switch_menu(FORFEIT);
+  play_sound_success();
+}
+
+void switch_to_board() {
+  switch_menu(BOARD);
+  play_sound_success();
+}
+
+void try_move() {
+  if (make_move(board_x, board_y)) {
+    play_sound_success();
+    board[board_x][board_y] = 1;
+  } else {
+    play_sound_failure();
+  }
+  switch_to_board();
+}
+
+void try_forfeit() {
+  forfeit();
+  display.clearDisplay();
+  //TODO maybe animation
+  play_sound_shutdown();
+  loop();
+}
+
+
+void draw_board(struct menu menu, int selected_x, int selected_y);
+
+void draw_text_menu(struct menu menu, int selected_x, int selected_y);
+
+void handle_player_bak() {
   //draw board / menus
   display.clearDisplay();
   if (current_menu == BOARD) {
