@@ -19,6 +19,14 @@
 #define OLED_RESET -1
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+struct task {
+  void (*task_function) (void);
+  unsigned long call_interval_in_millis;
+  unsigned long last_call_timestamp;
+};
+
+void multitask(struct task *tasks, size_t n_tasks);
+
 
 //state relevant to menu navigation
   // Pins für die Knöpfe
@@ -57,16 +65,89 @@ unsigned long last_server_poll = 0;
   const int message_length_width = 4;
   const int max_message_length = 1000;
 
-
-
 void play_sound_success(); //TODO
 void play_sound_failure();
 void play_sound_move();
 void make_move();
 void forfeit();
+void handle_server(void);
+void handle_player(void);
+void handle_sound(void);
 
+void setup(){
+    // Initialisiere das OLED-Display
+    display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+    display.clearDisplay();
+    display.setTextColor(WHITE);
 
+    // Initialisiere die Knöpfe
+    for (size_t button = 0; button < number_of_buttons; ++button) {
+      pinMode(button_pins[button], INPUT_PULLUP);
+    }
+    Serial.begin(115200);
 
+    // WLAN-Verbindung herstellen
+    WiFi.begin(ssid, password);
+    while(WiFi.status() != WL_CONNECTED){
+        delay(1000);
+        Serial.println("Verbinde mit WLAN....");
+    }
+    Serial.println("Verbunden.");
+    //tasks erstellen
+    struct task handle_player_task = {.task_function = &handle_player, .call_interval_in_millis = player_polling_interval, .last_call_timestamp = 0};
+    struct task handle_server_task = {.task_function = &handle_server, .call_interval_in_millis = server_polling_interval, .last_call_timestamp = 0};
+    struct task handle_sound_task = {.task_function = &handle_sound, .call_interval_in_millis = sound_polling_interval, .last_call_timestamp = 0};
+    struct task tasks[] = {handle_server_task, handle_player_task, handle_sound_task};
+    size_t n_tasks = sizeof(tasks) / sizeof(tasks[0]);
+    // Serververbindung herstellen
+    display.setCursor(0,0);
+    display.println("Serververbindung wird aufgebaut");
+    while(!client.connect(serverIP, serverPort)) {
+      //TODO funny animation here ?
+      delay(1000);
+    }
+    last_server_message_timestamp = millis();
+    //TODO wait for GAME_CREATED_REPLY
+
+    multitask(tasks, n_tasks);
+}
+
+void multitask(struct task *tasks, size_t n_tasks) {
+  while (true) {
+    for (size_t i = 0; i < n_tasks; ++i) {
+      if (millis() - tasks[i].last_call_timestamp >= tasks[i].call_interval_in_millis) {
+        tasks[i].last_call_timestamp = millis();
+        tasks[i]->task_function();
+      }
+    }
+  }
+}
+
+void handle_server() {
+  //handle server communication
+  if (millis() - last_server_poll >= player_polling_interval) {
+    last_player_poll = millis();
+    //handle incoming messages
+    StaticJsonDocument<384> message;
+    bool received_message = receive_message(message);
+    if (received_message) {
+
+      enum server_message reply_type = message["request"];
+      if (reply_type == KEEP_ALIVE_REPLY) {
+
+      } else {
+        //TODO handle all types of replys
+      }
+    }
+    if (millis() - last_server_message_timestamp >= server_timeout_time) {
+      //TODO handle server disconnect
+    }
+    //TODO handle outgoing messages
+    if (millis() - last_client_message_timestamp >= server_timeout_time / 2) {
+      send_basic_request(KEEP_ALIVE_REQUEST);
+    }
+  }
+}
 void read_message_into_buffer(size_t buffer_size, char* buffer, size_t n_bytes) {
   //n_bytes <= buffer_size
   
@@ -134,41 +215,7 @@ bool send_move_request(int move) {
   return send_message(message);
 }
 
-/*
- * Intialisiert Verbindung WiFi -> Server
-*/
-void setup(){
-    // Initialisiere das OLED-Display
-    display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-    display.clearDisplay();
-    display.setTextColor(WHITE);
 
-    // Initialisiere die Knöpfe
-    for (size_t button = 0; button < number_of_buttons; ++button) {
-      pinMode(button_pins[button], INPUT_PULLUP);
-    }
-    Serial.begin(115200);
-
-    // WLAN-Verbindung herstellen
-    WiFi.begin(ssid, password);
-    while(WiFi.status() != WL_CONNECTED){
-        delay(1000);
-        Serial.println("Verbinde mit WLAN....");
-    }
-    Serial.println("Verbunden.");
-
-    // Serververbindung herstellen
-    display.setCursor(0,0);
-    display.println("Serververbindung wird aufgebaut");
-    while(!client.connect(serverIP, serverPort)) {
-      //TODO funny animation here ?
-      delay(1000);
-    }
-    last_server_message_timestamp = millis();
-    //wait for GAME_CREATED_REPLY
-}
-
-//state relevant to server_communication
 void loop(){
   //handle button inputs, display
   if (millis() - last_player_poll >= player_polling_interval) {
@@ -344,7 +391,7 @@ void loop(){
 
           delay(/*hier noch einfügen, da SKT unklar*/);
 
-      })
+      }
 
 
     } else if (current_menu == MOVE) {
@@ -387,29 +434,6 @@ void loop(){
 
 
       } 
-    }
-  }
-  //handle server communication
-  if (millis() - last_server_poll >= player_polling_interval) {
-    last_player_poll = millis();
-    //handle incoming messages
-    StaticJsonDocument<384> message;
-    bool received_message = receive_message(message);
-    if (received_message) {
-
-      enum server_message reply_type = message["request"];
-      if (reply_type == KEEP_ALIVE_REPLY) {
-
-      } else {
-        //TODO handle all types of replys
-      }
-    }
-    if (millis() - last_server_message_timestamp >= server_timeout_time) {
-      //TODO handle server disconnect
-    }
-    //TODO handle outgoing messages
-    if (millis() - last_client_message_timestamp >= server_timeout_time / 2) {
-      send_basic_request(KEEP_ALIVE_REQUEST);
     }
   }
 }
