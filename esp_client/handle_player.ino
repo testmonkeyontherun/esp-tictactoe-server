@@ -1,9 +1,13 @@
 #include "handle_player.h"
+#include "handle_sound.h"
 void setup_player() {
   // Initialisiere das OLED-Display
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.clearDisplay();
   display.setTextColor(WHITE);
+  
+  //TODO startup animation
+  play_sound_startup();
 
   // Initialisiere die Knöpfe
   for (size_t button = 0; button < number_of_buttons; ++button) {
@@ -25,13 +29,49 @@ void handle_player() {
     }
   }
   //menu navigation
+  if (new_buttons[buttonUpPin]) {
+    if (selected_y > 0) {
+      --selected_y;
+    }
+  }
+  if (new_buttons[buttonDonwPin]) {
+    if (selected_y < menus[current_menu].height) {
+      ++selected_y;
+    }
+  }
+  if (new_buttons[buttonLeftPin]) {
+    if (selected_x > 0) {
+      --selected_x;
+    }
+  }
+  if (new_buttons[buttonRightPin]) {
+    if (selected_x < menus[current_menu].width) {
+      ++selected_x;
+    }
+  }
+  size_t current_selection_index = selected_y * width + selected_x
+  //has to be only computed once despite menu switching, because only one selection is valid at a time.
+  struct menu_entry current_entry = menus[current_menu].entrys[current_selection_index];
+  if (new_buttons[buttonAPin]) {
+    current_entry.a_callback();
+  } else if (new_buttons[buttonBPin]) {
+    current_entry.b_callback();
+  }
+  //drawing
+  menus[current_menu].draw(menus[current_menu], selected_x, selected_y);
+
+}
+
+void handle_player_bak() {
+  
+  //menu navigation
   if (current_menu == BOARD) {
     if (new_buttons[buttonBPin]) {
       current_menu = FORFEIT;
       submenu_option = 0;
       play_sound_success();
     } else if (new_buttons[buttonAPin]) {
-      if (board[selectedY][selectedX] == 0) { //TODO official game representation
+      if (board[selectedY][selectedX] == 0) {
         current_menu = MOVE;
         submenu_option = 0;
         play_sound_success();
@@ -150,7 +190,6 @@ void handle_player() {
         }
       }
     }
-      
   } else if (current_menu == FORFEIT) {
     const char* menuOptions[NUM_Options] = {"JA", "NEIN"};
     int selectedOption = 0;
