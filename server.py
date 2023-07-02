@@ -377,7 +377,7 @@ def server_frontend():
     match_maker_worker = threading.Thread(target=match_maker, daemon=True)
     match_maker_worker.start()
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(common.ADDR)
+    server.bind(("", common.PORT))
     server.listen()
     print("running")
     while True:
