@@ -38,6 +38,7 @@ int submenu_option = 0;
 const int square_width = 21;
 int board[3][3] = {{0}, {0}, {0}};
 
+
 //state relevant to server commmunication
 const char* ssid =  "platzhalter";
 const char* password = "platzhalter";
@@ -313,9 +314,79 @@ void loop(){
         }
         
     } else if (current_menu == FORFEIT) {
-      //TODO draw forfeit
+      const char* menuOptions[NUM_Options] = {"JA", "NEIN"};
+      int selectedOption = 0;
+      for (int x = 0; x < 2; x++) {
+        if (x == selectedOption) {
+          display.print("→");
+        } else {
+          display.print(" ");
+        }
+        display.println(menuOptions[x]);
+
+      }
+      display.display();
+
+      if(digitalRead(buttonLeftPin) == LOW) {
+        selectedOption = (selectedOption + NUM_Options - 1) % NUM_Options;
+        delay(/*hier noch einfügen, da SKT unklar*/);
+      } else if (digitalRead(buttonRightPin) == LOW) {
+        selectedOption = (selectedOption + 1) % NUM_Options;
+        delay(/*hier noch einfügen, da SKT unklar*/);
+      } else if (digitalRead(buttonAPin) == LOW) {
+
+          if(selectedOption == 0) {
+            //Aktion für JA - Verbindung trennen?
+            
+          } else if (selectedOption == 1) {
+            //aktion für Nein - zurück zum Spielboard
+          }
+
+          delay(/*hier noch einfügen, da SKT unklar*/);
+
+      })
+
+
     } else if (current_menu == MOVE) {
-      //TODO draw move
+      const char* menuOptionsForMove[MOVEMENU_OPTIONS] = {"JA", "NEIN"};
+      int selectedMoveOption = 0;
+      bool MoveLoggedIn = false;
+
+      for (int x = 0; x < MOVEMENU_OPTIONS; i++) {
+        if(i == selectedOption) {
+          display.print("→");
+        } else {
+          display.print(" ");
+        }
+        display.println(menuOptionsForMove[x]);
+      }
+
+      display.display();
+
+      if (digitalRead(buttonLeftPin) == LOW) {
+
+        selectedMoveOption = (selectedMoveOption + MOVEMENU_OPTIONS - 1) % MOVEMENU_OPTIONS;
+        delay(/*hier noch einfügen, da SKT unklar*/);
+
+      } else if (digitalRead(buttonRightPin) == LOW) {
+
+        selectedMoveOption = (selectedMoveOption + MOVEMENU_OPTIONS + 1) % NUM_Options;
+        delay(/*hier noch einfügen, da SKT unklar*/);
+      
+      } else if (digitalRead(buttonDownPin) == LOW) {
+        
+        if (selectedMoveOption == 0) {
+
+          MoveLoggedIn = true;
+        } else if (selectedMoveOption == 1) {
+          // Zug nicht einloggen - zurück zum spielboard
+        }
+
+        delay(/*hier noch einfügen, da SKT unklar*/);
+        // Spiel fortsetzen
+
+
+      } 
     }
   }
   //handle server communication
@@ -341,4 +412,9 @@ void loop(){
       send_basic_request(KEEP_ALIVE_REQUEST);
     }
   }
+}
+
+void aufgeben() {
+  // @Jakob
+
 }
