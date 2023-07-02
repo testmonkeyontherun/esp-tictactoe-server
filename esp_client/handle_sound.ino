@@ -1,3 +1,7 @@
+void play_sound_success(); //TODO
+void play_sound_failure();
+void play_sound_move();
+
 const int analogOutPin = D7;
 
 void setup() {
