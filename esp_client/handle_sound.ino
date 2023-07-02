@@ -1,57 +1,71 @@
-void play_sound_success(); //TODO
-void play_sound_failure();
-void play_sound_move();
+#include "handle_sound.h"
 
-const int analogOutPin = D7;
-
-void setup() {
-  // play_sound_move();
-  pinMode(analogOutPin, OUTPUT);
-  play_sound_success();
+void setup_sound() {
+  pinMode(soundPin, OUTPUT);
+  sound_is_playing = false;
+  sound_start = 0;
+  sound_duration = 0;
 }
-unsigned long sound_start;
-unsigned long sound_duration;
+
+void handle_sound() {
+  if (sound_is_playing && millis() - sound_start >= sound_duration) {
+    analogWrite(soundPin, 0);
+    sound_is_playing = false;
+  }
+}
 
 void play_sound_move() {
-
-
-  analogWrite(analogOutPin, 255);
+  analogWrite(soundPin, 255);
   sound_duration = 2000;
   sound_start = millis();
 }
 
 void play_sound_success() {
   //play_tone(hz, t in ms);
+  //TODO come up with jingle
   play_tone(750.0, 1000);
   delay(500);
   play_tone(750.0, 1000);
   delay(500);
   play_tone(1000.0, 3000);
 }
-void play_tone(float frequenz, int duration) {
+
+void play_sound_failure() {
+  //play_tone(hz, t in ms);
+  //TODO come up with jingle
+  play_tone(750.0, 1000);
+  delay(500);
+  play_tone(750.0, 1000);
+  delay(500);
+  play_tone(1000.0, 3000);
+}
+
+void play_sound_startup() {
+  //play_tone(hz, t in ms);
+  //TODO come up with jingle
+  play_tone(750.0, 1000);
+  delay(500);
+  play_tone(750.0, 1000);
+  delay(500);
+  play_tone(1000.0, 3000);
+}
+
+void play_sound_shutdown() {
+  //play_tone(hz, t in ms);
+  //TODO come up with jingle
+  play_tone(750.0, 1000);
+  delay(500);
+  play_tone(750.0, 1000);
+  delay(500);
+  play_tone(1000.0, 3000);
+}
+
+void play_tone(float frequenz, unsigned long duration) {
   unsigned long start = millis();
   while (millis() - start < duration) {
-    digitalWrite(analogOutPin, HIGH);
+    digitalWrite(soundPin, HIGH);
     delay(1000.0 / frequenz);
-    digitalWrite(analogOutPin, LOW);
+    digitalWrite(soundPin, LOW);
     delay(1000.0 / frequenz);
   }
 }
-
-void loop() {
-
-
-  if (millis() - sound_start >= sound_duration) {
-    analogWrite(analogOutPin, 0);
-    delay(1000);
-
-  }
-}
-
-/*void play_sound_success() {
-
-  analogWrite(analogOutPin, 255);
-  delay(2000);
-  analogWrite(analogOutPin, 128);
-  delay(1000);
-  }*/

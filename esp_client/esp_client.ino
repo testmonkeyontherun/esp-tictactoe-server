@@ -2,9 +2,10 @@
  * Backend-Server Code für das Multiplayer Tic-Tac-Toe Projekt für die BGY21b Projektphase des Fachs 
  * Mikrocontroller an der Carl Benz Schule Koblenz (Gruppe Simon, Jakob, Vincent, David).
 */
+#include "handle_server.h"
+#include "handle_player.h"
+#include "handle_sound.h"
 
-
-// Bibliotheken
 struct task {
   void (*task_function) (void);
   unsigned long call_interval_in_millis;
@@ -13,14 +14,10 @@ struct task {
 
 void multitask(struct task *tasks, size_t n_tasks);
 
-void handle_server(void);
-void handle_player(void);
-void handle_sound(void);
-
 void setup(){
   Serial.begin(115200);
   //tasks erstellen
-  struct task handle_player_task = {.task_function = &handle_player, .call_interval_in_millis = player_polling_interval, .last_call_timestamp = 0};
+  struct task handle_player_task = {.task_function = handle_player, .call_interval_in_millis = player_polling_interval, .last_call_timestamp = 0};
   struct task handle_server_task = {.task_function = &handle_server, .call_interval_in_millis = server_polling_interval, .last_call_timestamp = 0};
   struct task handle_sound_task = {.task_function = &handle_sound, .call_interval_in_millis = sound_polling_interval, .last_call_timestamp = 0};
   struct task tasks[] = {handle_server_task, handle_player_task, handle_sound_task};
@@ -36,8 +33,12 @@ void multitask(struct task *tasks, size_t n_tasks) {
     for (size_t i = 0; i < n_tasks; ++i) {
       if (millis() - tasks[i].last_call_timestamp >= tasks[i].call_interval_in_millis) {
         tasks[i].last_call_timestamp = millis();
-        tasks[i]->task_function();
+        tasks[i].task_function();
       }
     }
   }
+}
+
+void loop() {
+  //intentionally left blank, once this part is reached the code is over
 }
