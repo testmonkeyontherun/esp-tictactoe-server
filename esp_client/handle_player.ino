@@ -98,12 +98,9 @@ void switch_to_board() {
 }
 
 void try_move() {
-  if (make_move(board_x, board_y)) {
-    play_sound_success();
-    board[board_x][board_y] = 1;
-  } else {
-    play_sound_failure();
-  }
+  make_move(board_x, board_y);
+  play_sound_success();
+  board[board_x][board_y] = 1;
   switch_to_board();
 }
 

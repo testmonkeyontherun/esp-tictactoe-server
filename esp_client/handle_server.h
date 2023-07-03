@@ -20,8 +20,9 @@ enum server_message {KEEP_ALIVE_REPLY = 0, INFO_REPLY = 1, GAME_CREATED_REPLY = 
 enum client_message {KEEP_ALIVE_REQUEST = 0, INFO_REQUEST = 1, DISCONNECT_REQUEST = 2, MOVE_REQUEST = 3};
 const int message_length_width = 4;
 const int max_message_length = 1000;
+String server_connection_lost_error = "Serververbindung verloren!";
 
-bool make_move(int x, int y); //TODO
+void make_move(int x, int y); //TODO
 void forfeit();
 void setup_server();
 void handle_server();

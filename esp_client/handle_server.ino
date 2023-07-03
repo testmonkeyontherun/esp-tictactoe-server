@@ -54,7 +54,7 @@ void handle_server() {
     }
   }
   if (millis() - last_server_message_timestamp >= server_timeout_time) {
-    raise_error("Server connection lost!");
+    raise_error(server_connection_lost_error);
   }
   if (millis() - last_client_message_timestamp >= server_timeout_time / 2) {
     send_basic_request(KEEP_ALIVE_REQUEST);
@@ -100,10 +100,9 @@ bool receive_message(DynamicJsonDocument result) { //TODO keep track of buffer o
 }
 char send_buffer[max_message_length + message_length_width] = {0};
 
-bool send_message(DynamicJsonDocument message) {
+void send_message(DynamicJsonDocument message) {
   if (!client.connected()) {
-    //TODO raise errors
-    return false;
+    raise_error(server_connection_lost_error);
   }
   int message_length = serializeJson(message, send_buffer + message_length_width, max_message_length);
   *((int*) send_buffer) = message_length;
@@ -111,24 +110,25 @@ bool send_message(DynamicJsonDocument message) {
     client.write(send_buffer[i]);
   }
   last_client_message_timestamp = millis();
-  return true;
 }
 
-bool send_basic_request(enum client_message request) {
+void send_basic_request(enum client_message request) {
   StaticJsonDocument<16> message;
   message["request"] = request;
-  return send_message(message);
+  send_message(message);
 }
 
-bool send_move_request(int move) {
+void send_move_request(int move) {
   StaticJsonDocument<32> message;
   message["request"] = 0;
   message["move"] = move;
-  return send_message(message);
+  send_message(message);
 }
 
-bool make_move(int x, int y) {
-  return false; //TODO
+void make_move(int x, int y) {
+  const int board_width = 3;
+  int move = y * board_width + x;
+  send_move_request(move);
 }
 
 void raise_error [[noreturn]](String error_message) {
