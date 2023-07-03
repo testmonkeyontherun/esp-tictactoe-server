@@ -108,10 +108,9 @@ void try_move() {
 
 void try_forfeit() {
   forfeit();
-  display.clearDisplay();
-  //TODO maybe animation
-  play_sound_shutdown();
-  loop();//todo move this in end_game / shared end_screen
+  game_end_reason = forfeit_reason;
+  game_outcome = lost_outcome;
+  end_game();
 }
 
 
@@ -167,4 +166,24 @@ void draw_text_menu(struct menu menu, int selected_x, int selected_y) {
     display.setCursor(upper_x, upper_y + text_menu_y_offset);
     display.println(menu.entrys[i].name);
   }
+}
+
+
+void end_game [[noreturn]]() {
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.print("Du hast wegen '");
+  display.print(game_end_reason);
+  display.print("' '");
+  display.print(game_outcome);
+  display.println("'.");
+  if (game_end_reason.compareTo(won_outcome)) {
+    play_sound_success();
+  } else {
+    play_sound_failure();
+  }
+  delay(1000);
+  play_sound_shutdown();
+  display.clearDisplay();
+  while(true);
 }
