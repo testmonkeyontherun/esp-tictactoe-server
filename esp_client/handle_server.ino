@@ -1,8 +1,5 @@
 #include "handle_server.h"
 
-void make_move();
-void forfeit();
-
 void setup_server() {
   // WLAN-Verbindung herstellen
   WiFi.begin(ssid, password);
@@ -139,4 +136,9 @@ void raise_error [[noreturn]](String error_message) {
   display.setCursor(0, 0);
   display.println(error_message);
   while(true);
+}
+
+void forfeit() {
+  send_basic_request(DISCONNECT_REQUEST);
+  client.stop();
 }
