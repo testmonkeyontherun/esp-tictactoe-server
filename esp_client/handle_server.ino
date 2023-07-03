@@ -2,19 +2,19 @@
 
 void setup_server() {
   // WLAN-Verbindung herstellen
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   while(WiFi.status() != WL_CONNECTED){
     delay(1000);
-    Serial.println("Verbinde mit WLAN....");
+    combined_print("Verbinde mit WLAN....");
   }
-  Serial.println("Verbunden.");
+  combined_print("Verbunden.");
   // Serververbindung herstellen
-  display.setCursor(0,0);
-  display.println("Serververbindung wird aufgebaut");
   while(!client.connect(serverIP, serverPort)) {
+    combined_print("Serververbindung wird aufgebaut");
     delay(1000);
   }
-  display.println("Server verbunden, suche Spiel!");
+  combined_print("Server verbunden, suche Spiel!");
   last_server_message_timestamp = millis();
   //wait for GAME_CREATED_REPLY
   while (true) {
@@ -118,8 +118,8 @@ bool receive_message(DynamicJsonDocument result) {
   read_message_into_buffer(max_message_length, receive_buffer, message_length);
   DeserializationError error = deserializeJson(result, (const char *) receive_buffer, message_length);
   if (error) {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(error.f_str());
+    combined_print(F("deserializeJson() failed: "));
+    combined_print(error.f_str());
     raise_error(invalid_reply_error);
   }
   last_server_message_timestamp = millis();
@@ -133,9 +133,7 @@ void send_message(DynamicJsonDocument message) {
   }
   int message_length = serializeJson(message, send_buffer + message_length_width, max_message_length);
   *((int*) send_buffer) = message_length;
-  for (int i = 0; i < message_length + message_length_width; ++i) {
-    client.write(send_buffer[i]);
-  }
+  client.print(send_buffer);
   last_client_message_timestamp = millis();
 }
 
@@ -158,10 +156,10 @@ void make_move(int x, int y) {
 }
 
 void raise_error [[noreturn]](String error_message) {
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.println(error_message);
-  while(true);
+  combined_print(error_message);
+  while(true) {
+    ESP.wdtFeed();
+  }
 }
 
 void forfeit() {

@@ -31,6 +31,7 @@ void setup(){
 void multitask(struct task *tasks, size_t n_tasks) {
   while (true) {
     for (size_t i = 0; i < n_tasks; ++i) {
+      ESP.wdtFeed();
       if (millis() - tasks[i].last_call_timestamp >= tasks[i].call_interval_in_millis) {
         tasks[i].last_call_timestamp = millis();
         tasks[i].task_function();
@@ -41,4 +42,11 @@ void multitask(struct task *tasks, size_t n_tasks) {
 
 void loop() {
   //intentionally left blank, once this part is reached the code is over
+}
+
+void combined_print(String to_print) {
+  Serial.println(to_print);
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.println(to_print);
 }
