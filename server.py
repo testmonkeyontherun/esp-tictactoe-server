@@ -256,10 +256,8 @@ class ClientHandler:
             if message_length > 10000:
                 raise Exception(f"big message incoming {message_length}")
             message_bytes = self.connection.recv(message_length)
-            print(message_bytes, message_length)
             if len(message_bytes) != message_length:
-                print("MESSAGE LENGTH ERROR")
-                return None, None
+                raise Exception("too few bytes sent")
             message, arguments = self.decode_message(message_bytes)
             if message is not None:
                 self.last_incoming_message_time = time.time()
@@ -268,7 +266,11 @@ class ClientHandler:
             return None, None
     
     def send(self, message, arguments):
-        message = self.encode_message(message, arguments)
+        if (message != ClientHandler.KEEP_ALIVE_REPLY):
+            message = self.encode_message(message, arguments)
+            print(message)
+        else:
+            message = self.encode_message(message, arguments)
         self.connection.send(message)
         self.last_outgoing_message_time = time.time()
     
