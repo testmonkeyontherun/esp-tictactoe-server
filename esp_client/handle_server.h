@@ -5,8 +5,8 @@
 #include <assert.h>
 #include "handle_player.h"
 //state relevant to server commmunication
-const char* ssid =  "platzhalter";
-const char* password = "platzhalter";
+const char* ssid =  "esp-server";
+const char* password = "";
 IPAddress serverIP(192, 168, 3, 125);
 const int serverPort = 12345;
 const unsigned long server_timeout_time = 100;
