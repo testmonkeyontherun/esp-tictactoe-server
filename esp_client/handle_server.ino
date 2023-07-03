@@ -74,7 +74,7 @@ void handle_server() {
         end_game();
       }
       default: {
-        raise_error("Invalid reply!");
+        raise_error(invalid_reply_error);
       }
     }
   }
@@ -94,30 +94,34 @@ void read_message_into_buffer(size_t buffer_size, char* buffer, size_t n_bytes) 
 }
 
 char receive_buffer[max_message_length] = {0};
-bool receive_message(DynamicJsonDocument result) { //TODO keep track of buffer over multiple calls, 
+bool currently_receiving = false;
+int message_length = 0;
+bool receive_message(DynamicJsonDocument result) {
   if (!client.connected()) {
     raise_error(server_connection_lost_error);
   }
-  if (client.available() < message_length_width) { //minimum message length
-    return false;
-  }
-  read_message_into_buffer(max_message_length, receive_buffer, message_length_width);
-  int message_length = (int) *receive_buffer;
-  //TODO validate if this needs format changing
-  if (message_length > max_message_length) {
-    //TODO Invalid message
-    return false;
+  if (!currently_receiving) {
+    if (client.available() < message_length_width) { //minimum message length
+      return false;
+    }
+    read_message_into_buffer(max_message_length, receive_buffer, message_length_width);
+    message_length = (int) *receive_buffer;
+    //TODO validate if this needs format changing
+    if (message_length > max_message_length) {
+      raise_error(invalid_reply_error);
+    }
   }
   if (client.available() < message_length) {
-    //TODO Invalid message
+    currently_receiving = true;
     return false;
   }
+  currently_receiving = false;
   read_message_into_buffer(max_message_length, receive_buffer, message_length);
   DeserializationError error = deserializeJson(result, (const char *) receive_buffer, message_length);
   if (error) {
     Serial.print(F("deserializeJson() failed: "));
     Serial.println(error.f_str());
-    return false;
+    raise_error(invalid_reply_error);
   }
   last_server_message_timestamp = millis();
   return true;
