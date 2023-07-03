@@ -252,7 +252,7 @@ class ClientHandler:
             if message_length == 0:
                 return None, None
             if message_length > 10000:
-                raise Exception("big message incoming")
+                raise Exception(f"big message incoming {message_length}")
             message_bytes = self.connection.recv(message_length)
             if len(message_bytes) != message_length:
                 return None, None
@@ -332,6 +332,7 @@ class ClientHandler:
                 self.send_to_game(GameManager.MOVE_REQUEST, arguments)
             #check if the client has timed out
             if self.client_timed_out():
+                print("client timed out")
                 self.disconnect()
                 return
             #handle outgoing messages
