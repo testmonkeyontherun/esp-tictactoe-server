@@ -22,7 +22,7 @@ const int message_length_width = 4;
 const int max_message_length = 1000;
 String server_connection_lost_error = "Serververbindung verloren!";
 
-void make_move(int x, int y); //TODO
+void make_move(int x, int y);
 void forfeit();
 void setup_server();
 void handle_server();

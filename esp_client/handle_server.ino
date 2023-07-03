@@ -16,7 +16,33 @@ void setup_server() {
     delay(1000);
   }
   last_server_message_timestamp = millis();
-  //TODO wait for GAME_CREATED_REPLY
+  //wait for GAME_CREATED_REPLY
+  //TODO some sort of feedback here
+  while (true) {
+    StaticJsonDocument<384> message;
+    bool received_message = receive_message(message);
+    if (received_message) {
+
+      enum server_message reply_type = message["request"];
+      switch (reply_type) {
+        case GAME_CREATED_REPLY: {
+          return;
+        }
+        case KEEP_ALIVE_REPLY: {
+          break;
+        }
+        default: {
+          raise_error("Unerwartete Nachricht vom Server!");
+        }
+      }
+    }
+    if (millis() - last_server_message_timestamp >= server_timeout_time) {
+    raise_error(server_connection_lost_error);
+    }
+    if (millis() - last_client_message_timestamp >= server_timeout_time / 2) {
+      send_basic_request(KEEP_ALIVE_REQUEST);
+    }
+  }
 }
 
 void handle_server() {
