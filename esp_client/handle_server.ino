@@ -133,9 +133,7 @@ void send_message(DynamicJsonDocument message) {
   }
   int message_length = serializeJson(message, send_buffer + message_length_width, max_message_length);
   *((int*) send_buffer) = message_length;
-  for (int i = 0; i < message_length + message_length_width; ++i) {
-    client.write(send_buffer[i]);
-  }
+  client.print(send_buffer);
   last_client_message_timestamp = millis();
 }
 
@@ -159,7 +157,9 @@ void make_move(int x, int y) {
 
 void raise_error [[noreturn]](String error_message) {
   combined_print(error_message);
-  while(true);
+  while(true) {
+    ESP.wdtFeed();
+  }
 }
 
 void forfeit() {
