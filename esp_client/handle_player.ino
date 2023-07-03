@@ -108,10 +108,9 @@ void try_move() {
 
 void try_forfeit() {
   forfeit();
-  display.clearDisplay();
-  //TODO maybe animation
-  play_sound_shutdown();
-  loop();//todo move this in end_game / shared end_screen
+  game_end_reason = forfeit_reason;
+  game_outcome = lost_outcome;
+  end_game();
 }
 
 
@@ -178,7 +177,7 @@ void end_game [[noreturn]]() {
   display.print("' '");
   display.print(game_outcome);
   display.println("'.");
-  if (game_end_reason.compareTo("won")) {
+  if (game_end_reason.compareTo(won_outcome)) {
     play_sound_success();
   } else {
     play_sound_failure();

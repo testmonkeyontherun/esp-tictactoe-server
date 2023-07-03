@@ -22,6 +22,9 @@ int board[board_height][board_width] = {0};
 bool can_move = false;
 String game_end_reason = "FEHLER";
 String game_outcome = "FEHLER";
+String won_outcome = "won";
+String lost_outcome = "lost";
+String forfeit_reason = "forfeit";
 
 enum menu_types {BOARD = 0, MOVE = 1, FORFEIT = 2};
 enum menu_types current_menu = BOARD;
@@ -76,4 +79,4 @@ struct menu menus[] = {[BOARD] = {.entrys = board_entrys, .width = board_width, 
 void setup_player();
 void handle_player();
 
-void end_game [[noreturn]](); //TODO
+void end_game [[noreturn]]();
