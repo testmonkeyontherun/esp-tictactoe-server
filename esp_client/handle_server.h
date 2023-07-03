@@ -4,7 +4,6 @@
 #include <ArduinoJson.h>
 #include <assert.h>
 #include "handle_player.h"
-//#include <string.h>
 //state relevant to server commmunication
 const char* ssid =  "platzhalter";
 const char* password = "platzhalter";

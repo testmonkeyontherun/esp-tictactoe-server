@@ -20,8 +20,8 @@ const int board_width = 3;
 const int board_height = 3;
 int board[board_height][board_width] = {0};
 bool can_move = false;
-String game_end_reason;
-String game_outcome;
+String game_end_reason = "FEHLER";
+String game_outcome = "FEHLER";
 
 enum menu_types {BOARD = 0, MOVE = 1, FORFEIT = 2};
 enum menu_types current_menu = BOARD;

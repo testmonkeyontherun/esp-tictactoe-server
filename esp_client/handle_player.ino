@@ -168,3 +168,23 @@ void draw_text_menu(struct menu menu, int selected_x, int selected_y) {
     display.println(menu.entrys[i].name);
   }
 }
+
+
+void end_game [[noreturn]]() {
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.print("Du hast wegen '");
+  display.print(game_end_reason);
+  display.print("' '");
+  display.print(game_outcome);
+  display.println("'.");
+  if (game_end_reason.compareTo("won")) {
+    play_sound_success();
+  } else {
+    play_sound_failure();
+  }
+  delay(1000);
+  play_sound_shutdown();
+  display.clearDisplay();
+  while(true);
+}
