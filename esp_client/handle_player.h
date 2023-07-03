@@ -16,7 +16,12 @@ bool new_buttons[number_of_buttons] = {0};
 
 const unsigned long player_polling_interval = 100;
 const int square_width = 21;
-int board[3][3] = {{0}, {0}, {0}};
+const int board_width = 3;
+const int board_height = 3;
+int board[board_height][board_width] = {0};
+bool can_move = false;
+String game_end_reason;
+String game_outcome;
 
 enum menu_types {BOARD = 0, MOVE = 1, FORFEIT = 2};
 enum menu_types current_menu = BOARD;
@@ -62,7 +67,7 @@ struct menu_entry move_entrys[] = {{.a_callback = &switch_to_board, .b_callback 
 struct menu_entry forfeit_entrys[] = {{.a_callback = &switch_to_board, .b_callback = &switch_to_board, .name = "Abbrechen"},
                                    {.a_callback = &try_forfeit, .b_callback = &switch_to_board, .name = "Aufgeben"}};                     
 
-struct menu menus[] = {[BOARD] = {.entrys = board_entrys, .width = 3, .height = 3, .draw = &draw_board},
+struct menu menus[] = {[BOARD] = {.entrys = board_entrys, .width = board_width, .height = board_height, .draw = &draw_board},
                        [MOVE] = {.entrys = move_entrys, .width = 0, .height = sizeof(move_entrys) / sizeof(move_entrys[0]), .draw = &draw_text_menu},
                        [FORFEIT] = {.entrys = forfeit_entrys, .width = 0, .height = sizeof(forfeit_entrys) / sizeof(forfeit_entrys[0]), .draw = &draw_text_menu}};
 

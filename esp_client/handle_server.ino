@@ -60,7 +60,7 @@ void handle_server() {
         raise_error("GAME_CREATED_REPLY was sent twice!");
       }
       case INFO_REPLY: {
-        //TODO
+        parse_game_info(message["state"]);
         break;
       }
       case ILLEGAL_MOVE_REPLY: {
@@ -150,7 +150,6 @@ void send_move_request(int move) {
 }
 
 void make_move(int x, int y) {
-  const int board_width = 3;
   int move = y * board_width + x;
   send_move_request(move);
 }
@@ -165,4 +164,25 @@ void raise_error [[noreturn]](String error_message) {
 void forfeit() {
   send_basic_request(DISCONNECT_REQUEST);
   client.stop();
+}
+
+void parse_game_info(JsonObject info) {
+  int client_id = info["client_id"];
+  for (size_t y = 0; y < board_height; ++y) {
+    for (size_t x = 0; y < board_width; ++x) {
+      int index = y * board_width + x;
+      if (info["board"][index].isNull()) {
+        board[y][x] = 0;
+      } else if (info["board"][index] == client_id) {
+        board[y][x] = 1;
+      } else {
+        board[y][x] = 2;
+      }
+    }
+  }
+  can_move = info["to_move"] == client_id;
+  if (!strcmp(info["status"]["current_state"], "playing")) {
+    game_outcome = String(info["status"]["current_state"]);
+    game_end_reason = String(info["status"]["reason"]);
+  }
 }

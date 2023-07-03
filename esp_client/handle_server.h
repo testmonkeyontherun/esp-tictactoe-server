@@ -4,6 +4,7 @@
 #include <ArduinoJson.h>
 #include <assert.h>
 #include "handle_player.h"
+//#include <string.h>
 //state relevant to server commmunication
 const char* ssid =  "platzhalter";
 const char* password = "platzhalter";
@@ -28,3 +29,4 @@ void forfeit();
 void setup_server();
 void handle_server();
 void raise_error [[noreturn]](String error_message);
+void parse_game_info(JsonObject info); //todo
