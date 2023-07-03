@@ -12,12 +12,11 @@ void setup_server() {
   display.setCursor(0,0);
   display.println("Serververbindung wird aufgebaut");
   while(!client.connect(serverIP, serverPort)) {
-    //TODO funny animation here ?
     delay(1000);
   }
+  display.println("Server verbunden, suche Spiel!");
   last_server_message_timestamp = millis();
   //wait for GAME_CREATED_REPLY
-  //TODO some sort of feedback here
   while (true) {
     StaticJsonDocument<384> message;
     bool received_message = receive_message(message);
