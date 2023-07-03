@@ -104,7 +104,7 @@ bool receive_message(DynamicJsonDocument result) {
       return false;
     }
     read_message_into_buffer(max_message_length, receive_buffer, message_length_width);
-    message_length = (int) *receive_buffer;
+    message_length = (int) (*receive_buffer);
     //TODO validate if this needs format changing
     if (message_length > max_message_length) {
       raise_error(invalid_reply_error);
@@ -161,6 +161,8 @@ void make_move(int x, int y) {
 
 void raise_error [[noreturn]](String error_message) {
   combined_print(error_message);
+  //only for debugging purposes
+  ESP.restart();
   while(true) {
     ESP.wdtFeed();
   }
