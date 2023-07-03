@@ -1,12 +1,13 @@
 #include "handle_player.h"
 #include "handle_sound.h"
+#include "splashscreen.h"
 void setup_player() {
   // Initialisiere das OLED-Display
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.clearDisplay();
   display.setTextColor(WHITE);
   
-  //TODO startup animation
+  display.drawXBitmap(0, 0, splashscreen, ((int*) splashscreen)[0], ((int*)splashscreen)[1], WHITE);
   play_sound_startup();
 
   // Initialisiere die Knöpfe
