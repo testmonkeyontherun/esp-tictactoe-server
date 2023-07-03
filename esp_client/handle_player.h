@@ -10,7 +10,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 // Pins für die Knöpfe
 const int number_of_buttons = 6;
 enum button_indexes {buttonUpPin, buttonDownPin, buttonLeftPin, buttonRightPin, buttonAPin, buttonBPin};
-const int button_pins[number_of_buttons] = {2, 3, 4, 5, 6, 7};
+const int button_pins[number_of_buttons] = {D7, D0, D6, D5, D4, D8};
 bool pressed_buttons[number_of_buttons] = {false};
 bool new_buttons[number_of_buttons] = {0};
 

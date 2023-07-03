@@ -9,8 +9,8 @@ void setup_server() {
   }
   combined_print("Verbunden.");
   // Serververbindung herstellen
-  combined_print("Serververbindung wird aufgebaut");
   while(!client.connect(serverIP, serverPort)) {
+    combined_print("Serververbindung wird aufgebaut");
     delay(1000);
   }
   combined_print("Server verbunden, suche Spiel!");
