@@ -6,8 +6,8 @@
 #include "handle_player.h"
 //state relevant to server commmunication
 const char* ssid =  "esp-server";
-const char* password = "";
-IPAddress serverIP(192, 168, 3, 125);
+const char* password = "BHir8CnjquPkX3";
+const char* serverIP = "10.42.0.1";
 const int serverPort = 12345;
 const unsigned long server_timeout_time = 100;
 unsigned long last_server_message_timestamp = 0;
