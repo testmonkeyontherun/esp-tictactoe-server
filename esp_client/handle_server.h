@@ -2,6 +2,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ArduinoJson.h>
+#include <assert.h>
 //state relevant to server commmunication
 const char* ssid =  "platzhalter";
 const char* password = "platzhalter";
@@ -20,7 +21,8 @@ enum client_message {KEEP_ALIVE_REQUEST = 0, INFO_REQUEST = 1, DISCONNECT_REQUES
 const int message_length_width = 4;
 const int max_message_length = 1000;
 
-bool make_move(int x, int y);
+bool make_move(int x, int y); //TODO
 void forfeit();
 void setup_server();
 void handle_server();
+void raise_error [[noreturn]](String error_message);
