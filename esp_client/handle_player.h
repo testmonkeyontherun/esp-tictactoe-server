@@ -70,3 +70,5 @@ struct menu menus[] = {[BOARD] = {.entrys = board_entrys, .width = 3, .height = 
 
 void setup_player();
 void handle_player();
+
+void end_game [[noreturn]](); //TODO

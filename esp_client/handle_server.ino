@@ -71,8 +71,7 @@ void handle_server() {
         break;
       }
       case GAME_ENDED_REPLY: {
-        //TODO
-        break;
+        end_game();
       }
       default: {
         raise_error("Invalid reply!");
@@ -97,8 +96,7 @@ void read_message_into_buffer(size_t buffer_size, char* buffer, size_t n_bytes) 
 char receive_buffer[max_message_length] = {0};
 bool receive_message(DynamicJsonDocument result) { //TODO keep track of buffer over multiple calls, 
   if (!client.connected()) {
-    //TODO ERROR HERE
-    return false;
+    raise_error(server_connection_lost_error);
   }
   if (client.available() < message_length_width) { //minimum message length
     return false;
