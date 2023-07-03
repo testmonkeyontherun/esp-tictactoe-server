@@ -254,6 +254,7 @@ class ClientHandler:
             if message_length > 10000:
                 raise Exception(f"big message incoming {message_length}")
             message_bytes = self.connection.recv(message_length)
+            print(message_bytes)
             if len(message_bytes) != message_length:
                 return None, None
             message, arguments = self.decode_message(message_bytes)
