@@ -332,6 +332,7 @@ class ClientHandler:
                 self.send_to_game(GameManager.MOVE_REQUEST, arguments)
             #check if the client has timed out
             if self.client_timed_out():
+                print("client timed out")
                 self.disconnect()
                 return
             #handle outgoing messages
