@@ -79,7 +79,7 @@ void switch_menu(enum menu_types new_menu) {
 }
 
 void board_a_pressed() {
-  if (board[selected_y][selected_x] == 0) {
+  if (board[selected_y][selected_x] == 0 && can_move) {
     switch_menu(MOVE);
     play_sound_success();
   } else {
@@ -98,12 +98,10 @@ void switch_to_board() {
 }
 
 void try_move() {
-  if (make_move(board_x, board_y)) {
-    play_sound_success();
-    board[board_x][board_y] = 1;
-  } else {
-    play_sound_failure();
-  }
+  make_move(board_x, board_y);
+  play_sound_success();
+  board[board_x][board_y] = 1;
+  can_move = false;
   switch_to_board();
 }
 
@@ -112,7 +110,7 @@ void try_forfeit() {
   display.clearDisplay();
   //TODO maybe animation
   play_sound_shutdown();
-  loop();
+  loop();//todo move this in end_game / shared end_screen
 }
 
 

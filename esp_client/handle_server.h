@@ -2,6 +2,9 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ArduinoJson.h>
+#include <assert.h>
+#include "handle_player.h"
+//#include <string.h>
 //state relevant to server commmunication
 const char* ssid =  "platzhalter";
 const char* password = "platzhalter";
@@ -19,8 +22,12 @@ enum server_message {KEEP_ALIVE_REPLY = 0, INFO_REPLY = 1, GAME_CREATED_REPLY = 
 enum client_message {KEEP_ALIVE_REQUEST = 0, INFO_REQUEST = 1, DISCONNECT_REQUEST = 2, MOVE_REQUEST = 3};
 const int message_length_width = 4;
 const int max_message_length = 1000;
+String server_connection_lost_error = "Serververbindung verloren!";
+String invalid_reply_error = "Ungültige Nachricht vom Server!";
 
-bool make_move(int x, int y);
+void make_move(int x, int y);
 void forfeit();
 void setup_server();
 void handle_server();
+void raise_error [[noreturn]](String error_message);
+void parse_game_info(JsonObject info);
