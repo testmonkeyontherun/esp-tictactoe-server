@@ -229,6 +229,7 @@ class ClientHandler:
         self.thread = threading.Thread(target=self.init, args=(connection, address), daemon=True)
         self.thread.start()
     def init(self, connection, address):
+        self.receive_buffer = []
         self.last_outgoing_message_time = time.time() # the client does not care about internal matters
         
         self.connection = connection
@@ -245,16 +246,17 @@ class ClientHandler:
         self.handle_client()
     def receive(self):
         try:
-            message_length_bytes = self.connection.recv(4)
-            if len(message_length_bytes) != 4:
+            self.receive_buffer += self.connection.recv(4 - len(self.receive_buffer))
+            if len(self.receive_buffer) != 4:
                 return None, None
-            message_length = int.from_bytes(message_length_bytes, "little")
+            message_length = int.from_bytes(self.receive_buffer, "little")
+            self.receive_buffer = []
             if message_length == 0:
                 return None, None
             if message_length > 10000:
                 raise Exception(f"big message incoming {message_length}")
             message_bytes = self.connection.recv(message_length)
-            print(message_bytes)
+            print(message_bytes, message_length)
             if len(message_bytes) != message_length:
                 print("MESSAGE LENGTH ERROR")
                 return None, None

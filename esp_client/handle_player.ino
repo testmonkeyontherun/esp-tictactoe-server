@@ -7,7 +7,7 @@ void setup_player() {
   display.clearDisplay();
   display.setTextColor(WHITE);
   
-  display.drawXBitmap(0, 0, splashscreen, ((int*) splashscreen)[0], ((int*)splashscreen)[1], WHITE);
+  display.drawXBitmap(0, 0, splashscreen + (2*sizeof(int)), ((int*) splashscreen)[0], ((int*)splashscreen)[1], WHITE);
   play_sound_startup();
 
   // Initialisiere die Knöpfe

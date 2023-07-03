@@ -7,7 +7,7 @@ import ctypes
 import threading
 import sys
 PORT = 12345
-SERVER = "localhost"
+SERVER = "10.42.0.1"
 ADDR = (SERVER, PORT)
 MSG_LENGTH = 100
 FORMAT = "utf-8"
@@ -29,6 +29,7 @@ class ServerHandler:
     GAME_ENDED_REPLY = 5
 
     def __init__(self, ADDR):
+        self.receive_buffer = []
         self.incoming_queue = queue.Queue()
         self.outgoing_queue = queue.Queue()
         self.connection = client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -41,10 +42,11 @@ class ServerHandler:
     
     def receive(self):
         try:
-            message_length_bytes = self.connection.recv(4)
-            if len(message_length_bytes) != 4:
+            self.receive_buffer += self.connection.recv(4 - len(self.receive_buffer))
+            if len(self.receive_buffer) != 4:
                 return None, None
-            message_length = int.from_bytes(message_length_bytes, "little")
+            message_length = int.from_bytes(self.receive_buffer, "little")
+            self.receive_buffer = []
             if message_length == 0:
                 return None, None
             if message_length > 10000:
