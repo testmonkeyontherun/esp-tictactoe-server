@@ -36,7 +36,7 @@ void setup_server() {
       }
     }
     if (millis() - last_server_message_timestamp >= server_timeout_time) {
-    raise_error(server_connection_lost_error);
+      raise_error(server_connection_lost_error);
     }
     if (millis() - last_client_message_timestamp >= server_timeout_time / 2) {
       send_basic_request(KEEP_ALIVE_REQUEST);
@@ -133,8 +133,12 @@ void send_message(DynamicJsonDocument message) {
   }
   int message_length = serializeJson(message, send_buffer + message_length_width, max_message_length);
   *((int*) send_buffer) = message_length;
-  client.print(send_buffer);
+  for (size_t i = 0; i < message_length_width; ++i) {
+    client.write(send_buffer[i]); //necessary to fix endianness
+  }
+  client.print(&send_buffer[message_length_width]);
   last_client_message_timestamp = millis();
+  combined_print(&send_buffer[message_length_width]);
 }
 
 void send_basic_request(enum client_message request) {

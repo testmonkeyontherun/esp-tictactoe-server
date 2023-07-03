@@ -256,6 +256,7 @@ class ClientHandler:
             message_bytes = self.connection.recv(message_length)
             print(message_bytes)
             if len(message_bytes) != message_length:
+                print("MESSAGE LENGTH ERROR")
                 return None, None
             message, arguments = self.decode_message(message_bytes)
             if message is not None:
