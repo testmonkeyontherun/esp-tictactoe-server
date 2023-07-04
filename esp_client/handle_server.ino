@@ -18,8 +18,8 @@ void setup_server() {
   last_server_message_timestamp = millis();
   //wait for GAME_CREATED_REPLY
   while (true) {
-    StaticJsonDocument<384> message;
-    bool received_message = receive_message(message);
+    DynamicJsonDocument message(384);
+    bool received_message = receive_message(&message);
     if (received_message) {
 
       enum server_message reply_type = message["request"];
@@ -46,8 +46,8 @@ void setup_server() {
 
 void handle_server() {
   //handle incoming messages
-  StaticJsonDocument<384> message;
-  bool received_message = receive_message(message);
+  DynamicJsonDocument message(384);
+  bool received_message = receive_message(&message);
   if (received_message) {
 
     enum server_message reply_type = message["request"];
@@ -95,7 +95,7 @@ void read_message_into_buffer(size_t buffer_size, char* buffer, size_t n_bytes) 
 char receive_buffer[max_message_length] = {0};
 bool currently_receiving = false;
 int message_length = 0;
-bool receive_message(DynamicJsonDocument result) {
+bool receive_message(DynamicJsonDocument *result) {
   if (!client.connected()) {
     raise_error(server_connection_lost_error);
   }
@@ -105,7 +105,6 @@ bool receive_message(DynamicJsonDocument result) {
     }
     read_message_into_buffer(max_message_length, receive_buffer, message_length_width);
     message_length = (int) (*receive_buffer);
-    //TODO validate if this needs format changing
     if (message_length > max_message_length) {
       raise_error(invalid_reply_error);
     }
@@ -116,7 +115,7 @@ bool receive_message(DynamicJsonDocument result) {
   }
   currently_receiving = false;
   read_message_into_buffer(max_message_length, receive_buffer, message_length);
-  DeserializationError error = deserializeJson(result, (const char *) receive_buffer, message_length);
+  DeserializationError error = deserializeJson(*result, (const char *) receive_buffer, message_length);
   if (error) {
     combined_print(F("deserializeJson() failed: "));
     combined_print(error.f_str());
@@ -138,7 +137,6 @@ void send_message(DynamicJsonDocument message) {
   }
   client.print(&send_buffer[message_length_width]);
   last_client_message_timestamp = millis();
-  combined_print(&send_buffer[message_length_width]);
 }
 
 void send_basic_request(enum client_message request) {
@@ -161,8 +159,6 @@ void make_move(int x, int y) {
 
 void raise_error [[noreturn]](String error_message) {
   combined_print(error_message);
-  //only for debugging purposes
-  ESP.restart();
   while(true) {
     ESP.wdtFeed();
   }

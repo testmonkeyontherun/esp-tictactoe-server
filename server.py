@@ -266,11 +266,7 @@ class ClientHandler:
             return None, None
     
     def send(self, message, arguments):
-        if (message != ClientHandler.KEEP_ALIVE_REPLY):
-            message = self.encode_message(message, arguments)
-            print(message)
-        else:
-            message = self.encode_message(message, arguments)
+        message = self.encode_message(message, arguments)
         self.connection.send(message)
         self.last_outgoing_message_time = time.time()
     
@@ -364,7 +360,7 @@ class ClientHandler:
 
             except queue.Empty:
                 if not self.game_exists and self.matchmaking_timed_out():
-                    self.disconnect("disconnect")
+                    self.disconnect()
                     return
             if self.is_time_to_send_keep_alive():
                 self.send(ClientHandler.KEEP_ALIVE_REPLY, None)
