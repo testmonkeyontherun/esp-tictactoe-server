@@ -20,7 +20,7 @@ void setup(){
   struct task handle_player_task = {.task_function = handle_player, .call_interval_in_millis = player_polling_interval, .last_call_timestamp = 0};
   struct task handle_server_task = {.task_function = &handle_server, .call_interval_in_millis = server_polling_interval, .last_call_timestamp = 0};
   struct task handle_sound_task = {.task_function = &handle_sound, .call_interval_in_millis = sound_polling_interval, .last_call_timestamp = 0};
-  struct task tasks[] = {handle_server_task, handle_player_task, handle_sound_task};
+  struct task tasks[] = {handle_server_task,handle_player_task, handle_sound_task};
   size_t n_tasks = sizeof(tasks) / sizeof(tasks[0]);
   setup_sound();
   setup_player();
@@ -50,4 +50,5 @@ void combined_print(String to_print) {
   display.clearDisplay();
   display.setCursor(0, 0);
   display.println(to_print);
+  display.display();
 }
