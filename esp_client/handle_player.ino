@@ -18,6 +18,8 @@ void setup_player() {
 }
 
 void handle_player() {
+  Serial.print(millis());
+  Serial.println("handle_player");
   //check for new button presses since last cycle
   for (size_t button = 0; button < number_of_buttons; ++button) {
     new_buttons[button] = false;
@@ -83,27 +85,24 @@ void switch_menu(enum menu_types new_menu) {
 void board_a_pressed() {
   if (board[selected_y][selected_x] == 0 && can_move) {
     switch_menu(MOVE);
-    play_sound_success();
-  } else {
-    play_sound_failure();
   }
+  play_sound_move();
 }
 
 void board_b_pressed() {
   switch_menu(FORFEIT);
-  play_sound_success();
+  play_sound_move();
 }
 
 void switch_to_board() {
   switch_menu(BOARD);
-  play_sound_success();
 }
 
 void try_move() {
   make_move(board_x, board_y);
-  play_sound_success();
   board[board_x][board_y] = 1;
   can_move = false;
+  play_sound_move();
   switch_to_board();
 }
 

@@ -210,7 +210,7 @@ def match_maker():
 
 class ClientHandler:
     GAME_REQUEST_TIMEOUT = 100
-    KEEP_ALIVE_TIMEOUT = 1
+    KEEP_ALIVE_TIMEOUT = 4
 
     #client -> handler
     KEEP_ALIVE_REQUEST = 0

@@ -8,6 +8,8 @@ void setup_sound() {
 }
 
 void handle_sound() {
+  Serial.print(millis());
+  Serial.println("handle_sound");
   if (sound_is_playing && millis() - sound_start >= sound_duration) {
     analogWrite(soundPin, 0);
     sound_is_playing = false;

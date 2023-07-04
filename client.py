@@ -7,13 +7,13 @@ import ctypes
 import threading
 import sys
 PORT = 12345
-SERVER = "10.42.0.1"
+SERVER = "10.42.0.39"
 ADDR = (SERVER, PORT)
 MSG_LENGTH = 100
 FORMAT = "utf-8"
 
 class ServerHandler:
-    KEEP_ALIVE_TIMEOUT = 1
+    KEEP_ALIVE_TIMEOUT = 4
 
     #client -> handler
     KEEP_ALIVE_REQUEST = 0

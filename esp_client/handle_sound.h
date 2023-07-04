@@ -3,7 +3,7 @@ const int soundPin = D8;
 unsigned long sound_start;
 unsigned long sound_duration;
 unsigned long sound_is_playing;
-unsigned long sound_polling_interval = 1;
+unsigned long sound_polling_interval = 0;
 
 void play_sound_success(); //TODO
 void play_sound_failure();
