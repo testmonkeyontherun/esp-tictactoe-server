@@ -7,14 +7,14 @@
 //state relevant to server commmunication
 const char* ssid =  "esp-server";
 const char* password = "BHir8CnjquPkX3";
-const char* serverIP = "10.42.0.1";
+const char* serverIP = "10.42.0.39";
 const int serverPort = 12345;
-const unsigned long server_timeout_time = 1000;
+const unsigned long server_timeout_time = 4000;
 unsigned long last_server_message_timestamp = 0;
 unsigned long last_client_message_timestamp = 0;
 WiFiClient client;
 
-unsigned long server_polling_interval = 10;
+unsigned long server_polling_interval = 0;
 unsigned long last_server_poll = 0;
 //messages
 enum server_message {KEEP_ALIVE_REPLY = 0, INFO_REPLY = 1, GAME_CREATED_REPLY = 2, ILLEGAL_MOVE_REPLY = 3, MOVE_ACCEPTED_REPLY = 4, GAME_ENDED_REPLY = 5};
