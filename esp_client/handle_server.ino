@@ -92,7 +92,7 @@ void read_message_into_buffer(size_t buffer_size, char* buffer, size_t n_bytes) 
   }
 }
 
-char receive_buffer[max_message_length] = {0};
+char receive_buffer[max_message_length + 1] = {0};
 bool currently_receiving = false;
 int message_length = 0;
 bool receive_message(DynamicJsonDocument *result) {
@@ -115,6 +115,9 @@ bool receive_message(DynamicJsonDocument *result) {
   }
   currently_receiving = false;
   read_message_into_buffer(max_message_length, receive_buffer, message_length);
+  read_buffer[message_length] = '\0';
+  Serial.println(message_length);
+  combined_print(receive_buffer);
   DeserializationError error = deserializeJson(*result, (const char *) receive_buffer, message_length);
   if (error) {
     combined_print(F("deserializeJson() failed: "));
