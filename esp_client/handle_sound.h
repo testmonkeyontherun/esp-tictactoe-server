@@ -1,5 +1,5 @@
 #pragma once
-const int soundPin = D3;
+const int soundPin = D8;
 unsigned long sound_start;
 unsigned long sound_duration;
 unsigned long sound_is_playing;

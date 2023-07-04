@@ -8,6 +8,7 @@ void setup_player() {
   display.setTextColor(WHITE);
   
   display.drawXBitmap(0, 0, splashscreen + (2*sizeof(int)), ((int*) splashscreen)[0], ((int*)splashscreen)[1], WHITE);
+  display.display();
   play_sound_startup();
 
   // Initialisiere die Knöpfe
@@ -37,7 +38,7 @@ void handle_player() {
     }
   }
   if (new_buttons[buttonDownPin]) {
-    if (selected_y < menus[current_menu].height) {
+    if (selected_y < menus[current_menu].height - 1) {
       ++selected_y;
       play_sound_move();
     }
@@ -49,7 +50,7 @@ void handle_player() {
     }
   }
   if (new_buttons[buttonRightPin]) {
-    if (selected_x < menus[current_menu].width) {
+    if (selected_x < menus[current_menu].width - 1) {
       ++selected_x;
       play_sound_move();
     }
@@ -116,11 +117,11 @@ void try_forfeit() {
 
 void draw_board(struct menu menu, int selected_x, int selected_y) {
   display.clearDisplay();
-  display.drawLine(21, 0, 21, 64, WHITE);
-  display.drawLine(42, 0, 42, 64, WHITE);
-  display.drawLine(0, 21, 0, 64, WHITE);
-  display.drawLine(0, 42, 0, 64, WHITE);
-  //todo textgröße hier anpassen////
+  display.drawLine(21, 0, 21, 63, WHITE);
+  display.drawLine(42, 0, 42, 63, WHITE);
+  display.drawLine(0, 21, 63, 21, WHITE);
+  display.drawLine(0, 42, 63, 42, WHITE);
+  display.setTextSize(1);
 
   for (int x = 0; x < 3; ++x) {
     for (int y = 0; y < 3; ++y) {
@@ -144,11 +145,12 @@ void draw_board(struct menu menu, int selected_x, int selected_y) {
       }
     }
   }
+  display.display();
 }
 
 void draw_text_menu(struct menu menu, int selected_x, int selected_y) {
   //TODO tune textsize and offset
-  const int text_menu_text_size = 10;
+  const int text_menu_text_size = 1;
   const int text_menu_y_offset = 1;
   const int text_menu_x_offset = 1;
   display.setTextSize(text_menu_text_size);
@@ -166,6 +168,7 @@ void draw_text_menu(struct menu menu, int selected_x, int selected_y) {
     display.setCursor(upper_x, upper_y + text_menu_y_offset);
     display.println(menu.entrys[i].name);
   }
+  display.display();
 }
 
 
@@ -177,6 +180,7 @@ void end_game [[noreturn]]() {
   display.print("' '");
   display.print(game_outcome);
   display.println("'.");
+  display.display();
   if (game_end_reason.compareTo(won_outcome)) {
     play_sound_success();
   } else {
@@ -185,5 +189,6 @@ void end_game [[noreturn]]() {
   delay(1000);
   play_sound_shutdown();
   display.clearDisplay();
+  display.display();
   while(true);
 }

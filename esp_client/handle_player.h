@@ -4,17 +4,17 @@
 #include <Adafruit_SSD1306.h>
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
-#define OLED_RESET -1
+#define OLED_RESET 0
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // Pins für die Knöpfe
-const int number_of_buttons = 6;
 enum button_indexes {buttonUpPin, buttonDownPin, buttonLeftPin, buttonRightPin, buttonAPin, buttonBPin};
-const int button_pins[number_of_buttons] = {D7, D0, D6, D5, D4, D8};
+const int button_pins[] = {D7, D0, D6, D5, D4, D3};
+const int number_of_buttons = sizeof(button_pins) / sizeof(button_pins[0]);
 bool pressed_buttons[number_of_buttons] = {false};
 bool new_buttons[number_of_buttons] = {0};
 
-const unsigned long player_polling_interval = 100;
+const unsigned long player_polling_interval = 10;
 const int square_width = 21;
 const int board_width = 3;
 const int board_height = 3;
