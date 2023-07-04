@@ -15,6 +15,7 @@ struct task {
 void multitask(struct task *tasks, size_t n_tasks);
 
 void setup(){
+  ESP.wdtEnable(2000);
   Serial.begin(115200);
   //tasks erstellen
   struct task handle_player_task = {.task_function = &handle_player, .call_interval_in_millis = player_polling_interval, .last_call_timestamp = 0};

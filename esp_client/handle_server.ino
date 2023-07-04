@@ -59,15 +59,14 @@ void handle_server() {
         break;
       }
       case GAME_CREATED_REPLY: {
-        raise_error("GAME_CREATED_REPLY was sent twice!");
+        raise_error("GAME_CREATED_REPLY wurde zweimal gesendet!");
       }
       case INFO_REPLY: {
-        parse_game_info(message["state"]);
+        parse_game_info(&message);
         break;
       }
       case ILLEGAL_MOVE_REPLY: {
-        raise_error("You managed to make an illegal move!");
-        break;
+        raise_error("Du hast es geschafft einen ungültigen zug zu machen!");
       }
       case MOVE_ACCEPTED_REPLY: {
         break;
@@ -83,7 +82,7 @@ void handle_server() {
   if (millis() - last_server_message_timestamp >= server_timeout_time) {
     raise_error(server_connection_lost_error);
   }
-  if (millis() - last_client_message_timestamp >= server_timeout_time / 4) {
+  if (millis() - last_client_message_timestamp >= server_timeout_time / 2) {
     send_basic_request(KEEP_ALIVE_REQUEST);
   }
 }
@@ -99,6 +98,8 @@ char receive_buffer[max_message_length + 1] = {0};
 bool currently_receiving = false;
 int message_length = 0;
 bool receive_message(DynamicJsonDocument *result) {
+  Serial.print(millis());
+  Serial.println("receive_message");
   if (!client.connected()) {
     raise_error(server_connection_lost_error);
   }
@@ -176,23 +177,30 @@ void forfeit() {
   client.stop();
 }
 
-void parse_game_info(JsonObject info) {
-  int client_id = info["client_id"];
+void parse_game_info(DynamicJsonDocument *info) {
+  //todo crashes here
+  Serial.print(millis());
+  Serial.println("parse_game_info");
+  JsonObject state = (*info)["state"];
+  JsonObject state_status = state["status"];
+  JsonArray state_board = state["board"];
+  long long client_id = state["client_id"];
   for (size_t y = 0; y < board_height; ++y) {
-    for (size_t x = 0; y < board_width; ++x) {
+    for (size_t x = 0; x < board_width; ++x) {
       int index = y * board_width + x;
-      if (info["board"][index].isNull()) {
+      Serial.println(index);
+      if (state_board[index] == nullptr) {
         board[y][x] = 0;
-      } else if (info["board"][index] == client_id) {
+      } else if (state_board[index] == client_id) {
         board[y][x] = 1;
       } else {
         board[y][x] = 2;
       }
     }
   }
-  can_move = info["to_move"] == client_id;
-  if (!strcmp(info["status"]["current_state"], "playing")) {
-    game_outcome = String(info["status"]["current_state"]);
-    game_end_reason = String(info["status"]["reason"]);
+  can_move = state["to_move"] == client_id;
+  if (!strcmp(state_status["current_state"], "playing")) {
+    game_outcome = String(state_status["current_state"]);
+    game_end_reason = String(state_status["reason"]);
   }
 }
