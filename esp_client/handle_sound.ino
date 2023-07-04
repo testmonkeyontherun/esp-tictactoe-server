@@ -20,38 +20,32 @@ void play_sound_move() {
   analogWrite(soundPin, 255);
   sound_duration = 2000;
   sound_start = millis();
+  // Beep Sound @ 698.456 Hz with 20ms
 }
 
 void play_sound_success() {
-  //play_tone(hz, t in ms);
-  //TODO come up with jingle
-  play_tone(750.0, 1000);
-  play_tone(750.0, 1000);
-  play_tone(1000.0, 3000);
+  play_tone(500.0, 250);
+  delay(200);
+  play_tone(500.0, 250);
+  delay(100);
+  play_tone(650.0, 500);
 }
-
+ 
 void play_sound_failure() {
-  //play_tone(hz, t in ms);
-  //TODO come up with jingle
-  play_tone(750.0, 1000);
-  play_tone(750.0, 1000);
-  play_tone(1000.0, 3000);
+  play_tone(575.0, 400);
+  delay(20);
+  play_tone(525.0, 400);
+  play_tone(475.0, 500);
 }
 
 void play_sound_startup() {
-  //play_tone(hz, t in ms);
-  //TODO come up with jingle
-  play_tone(750.0, 1000);
-  play_tone(750.0, 1000);
-  play_tone(1000.0, 3000);
+  play_tone(440.0, 300);
+  play_tone(750.0, 300);
 }
 
 void play_sound_shutdown() {
-  //play_tone(hz, t in ms);
-  //TODO come up with jingle
-  play_tone(750.0, 1000);
-  play_tone(750.0, 1000);
-  play_tone(1000.0, 3000);
+  play_tone(659.255, 600);
+  play_tone(440, 600);
 }
 
 void play_tone(float frequenz, unsigned long duration) {
