@@ -13,7 +13,7 @@ MSG_LENGTH = 100
 FORMAT = "utf-8"
 
 class ServerHandler:
-    KEEP_ALIVE_TIMEOUT = 0.1
+    KEEP_ALIVE_TIMEOUT = 1
 
     #client -> handler
     KEEP_ALIVE_REQUEST = 0

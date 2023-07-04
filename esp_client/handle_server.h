@@ -9,7 +9,7 @@ const char* ssid =  "esp-server";
 const char* password = "BHir8CnjquPkX3";
 const char* serverIP = "10.42.0.1";
 const int serverPort = 12345;
-const unsigned long server_timeout_time = 100;
+const unsigned long server_timeout_time = 1000;
 unsigned long last_server_message_timestamp = 0;
 unsigned long last_client_message_timestamp = 0;
 WiFiClient client;
