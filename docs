@@ -17,7 +17,7 @@ BOARD[8] =
 6|7|8
 
 message:message length (4 byte, max 1000) message (message lenght byte, utf-8)
-KEEP_ALIVE_TIMEOUT = 100
+KEEP_ALIVE_TIMEOUT = 1000
 
 message:
     #client -> handler
