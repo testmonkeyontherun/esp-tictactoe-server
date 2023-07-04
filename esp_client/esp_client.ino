@@ -25,6 +25,7 @@ void setup(){
   setup_sound();
   setup_player();
   setup_server();
+  combined_print("Spiel erstellt!");
   multitask(tasks, n_tasks);
 }
 
