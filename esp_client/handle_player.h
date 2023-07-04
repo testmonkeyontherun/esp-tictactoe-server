@@ -14,7 +14,7 @@ const int number_of_buttons = sizeof(button_pins) / sizeof(button_pins[0]);
 bool pressed_buttons[number_of_buttons] = {false};
 bool new_buttons[number_of_buttons] = {0};
 
-const unsigned long player_polling_interval = 100;
+const unsigned long player_polling_interval = 10;
 const int square_width = 21;
 const int board_width = 3;
 const int board_height = 3;

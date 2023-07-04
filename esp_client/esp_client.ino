@@ -31,12 +31,12 @@ void setup(){
 void multitask(struct task *tasks, size_t n_tasks) {
   while (true) {
     for (size_t i = 0; i < n_tasks; ++i) {
+      ESP.wdtFeed();
       if (millis() - tasks[i].last_call_timestamp >= tasks[i].call_interval_in_millis) {
         tasks[i].last_call_timestamp = millis();
         tasks[i].task_function();
       }
     }
-    ESP.wdtFeed();
   }
 }
 

@@ -18,7 +18,7 @@ void setup_server() {
   last_server_message_timestamp = millis();
   //wait for GAME_CREATED_REPLY
   while (true) {
-    DynamicJsonDocument message(384);
+    DynamicJsonDocument message(512);
     bool received_message = receive_message(&message);
     if (received_message) {
 
@@ -49,7 +49,7 @@ void handle_server() {
   Serial.print(millis());
   Serial.println("handle_server");
   //handle incoming messages
-  DynamicJsonDocument message(384);
+  DynamicJsonDocument message(512);
   bool received_message = receive_message(&message);
   if (received_message) {
 
@@ -107,7 +107,8 @@ bool receive_message(DynamicJsonDocument *result) {
       return false;
     }
     read_message_into_buffer(max_message_length, receive_buffer, message_length_width);
-    message_length = (int) (*receive_buffer);
+    void * recv_buff = (void *) receive_buffer;
+    message_length = ((int*) receive_buffer)[0];
     if (message_length > max_message_length) {
       raise_error(invalid_reply_error);
     }
