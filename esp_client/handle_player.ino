@@ -120,7 +120,7 @@ void draw_board(struct menu menu, int selected_x, int selected_y) {
   display.drawLine(42, 0, 42, 63, WHITE);
   display.drawLine(0, 21, 63, 21, WHITE);
   display.drawLine(0, 42, 63, 42, WHITE);
-  display.setTextSize(1);
+  display.setTextSize(5);
 
   for (int x = 0; x < 3; ++x) {
     for (int y = 0; y < 3; ++y) {

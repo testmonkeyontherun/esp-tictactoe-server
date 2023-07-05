@@ -22,7 +22,6 @@ void play_sound_move() {
 
 void play_sound_success() {
   //play_tone(hz, t in ms);
-  //TODO come up with jingle
   play_tone(750.0, 1000);
   play_tone(750.0, 1000);
   play_tone(1000.0, 3000);
@@ -30,7 +29,6 @@ void play_sound_success() {
 
 void play_sound_failure() {
   //play_tone(hz, t in ms);
-  //TODO come up with jingle
   play_tone(750.0, 1000);
   play_tone(750.0, 1000);
   play_tone(1000.0, 3000);
@@ -38,7 +36,6 @@ void play_sound_failure() {
 
 void play_sound_startup() {
   //play_tone(hz, t in ms);
-  //TODO come up with jingle
   play_tone(750.0, 1000);
   play_tone(750.0, 1000);
   play_tone(1000.0, 3000);

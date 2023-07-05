@@ -47,6 +47,7 @@ void loop() {
 
 void combined_print(String to_print) {
   Serial.println(to_print);
+  display.setTextSize(1);
   display.clearDisplay();
   display.setCursor(0, 0);
   display.println(to_print);
