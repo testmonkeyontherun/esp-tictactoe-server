@@ -1,13 +1,12 @@
-"""Game agnostic server for (turnbased?) multiplayer games.
-If this project succeedes as planned it should be as easy as swapping
-out Game to change what game is currently running. The number of players should also be adjustable by changeing Game.
-Finally there might at some point come support for more advanced matchmaking."""
+"""Game agnostic server for turnbased multiplayer games.
+Swapping games can be achieved by changing the Game class and maybe changing matchmaking.
+Currently configured to play TicTacToe."""
 
 
 import threading
 import queue
 import socket
-import common
+import config
 import time
 import random
 import json
@@ -210,7 +209,7 @@ def match_maker():
 
 class ClientHandler:
     GAME_REQUEST_TIMEOUT = 100
-    KEEP_ALIVE_TIMEOUT = 4
+    KEEP_ALIVE_TIMEOUT = config.KEEP_ALIVE_TIMEOUT
 
     #client -> handler
     KEEP_ALIVE_REQUEST = 0
@@ -253,7 +252,7 @@ class ClientHandler:
             self.receive_buffer = []
             if message_length == 0:
                 return None, None
-            if message_length > 10000:
+            if message_length > config.MAX_MSG_LENGTH:
                 raise Exception(f"big message incoming {message_length}")
             message_bytes = self.connection.recv(message_length)
             if len(message_bytes) != message_length:
@@ -271,7 +270,7 @@ class ClientHandler:
         self.last_outgoing_message_time = time.time()
     
     def decode_message(self, message):
-        message_string = message.decode("utf-8")
+        message_string = message.decode(config.FORMAT)
         message_dict = json.loads(message_string)
         arguments = None
         try:
@@ -287,7 +286,7 @@ class ClientHandler:
         if arguments is not None:
             message = message | arguments
         message_string = json.dumps(message)
-        message_bytes = message_string.encode("utf-8")
+        message_bytes = message_string.encode(config.FORMAT)
         length_bytes = bytes(ctypes.c_uint32(len(message_bytes)))
         return length_bytes + message_bytes
 
@@ -380,7 +379,7 @@ def server_frontend():
     match_maker_worker = threading.Thread(target=match_maker, daemon=True)
     match_maker_worker.start()
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(("", common.PORT))
+    server.bind(("", config.PORT))
     server.listen()
     print("running")
     while True:

@@ -1,0 +1,5 @@
+PORT = 12345
+SERVER = "localhost"
+MAX_MSG_LENGTH = 1000
+KEEP_ALIVE_TIMEOUT = 4 #seconds
+FORMAT = "utf-8"

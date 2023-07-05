@@ -1,19 +1,15 @@
 import socket
-import common
+import config
 import json
 import time
 import queue
 import ctypes
 import threading
 import sys
-PORT = 12345
-SERVER = "10.42.0.1"
-ADDR = (SERVER, PORT)
-MSG_LENGTH = 100
-FORMAT = "utf-8"
+
 
 class ServerHandler:
-    KEEP_ALIVE_TIMEOUT = 4
+    KEEP_ALIVE_TIMEOUT = config.KEEP_ALIVE_TIMEOUT
 
     #client -> handler
     KEEP_ALIVE_REQUEST = 0
@@ -49,7 +45,7 @@ class ServerHandler:
             self.receive_buffer = []
             if message_length == 0:
                 return None, None
-            if message_length > 10000:
+            if message_length > config.MAX_MSG_LENGTH:
                 raise Exception("big message incoming")
             message_bytes = self.connection.recv(message_length)
             if len(message_bytes) != message_length:
@@ -67,7 +63,7 @@ class ServerHandler:
         self.last_outgoing_message_time = time.time()
     
     def decode_message(self, message):
-        message_string = message.decode("utf-8")
+        message_string = message.decode(config.FORMAT)
         message_dict = json.loads(message_string)
         arguments = None
         try:
@@ -83,7 +79,7 @@ class ServerHandler:
         if arguments is not None:
             message = message | arguments
         message_string = json.dumps(message)
-        message_bytes = message_string.encode("utf-8")
+        message_bytes = message_string.encode(config.FORMAT)
         length_bytes = bytes(ctypes.c_uint32(len(message_bytes)))
         return length_bytes + message_bytes
 
@@ -163,7 +159,7 @@ def draw_state(state):
 
 
 if __name__ == "__main__":
-    server = ServerHandler(ADDR)
+    server = ServerHandler((config.SERVER, config.PORT))
     user_handler = threading.Thread(target=handle_user, daemon=True)
     user_handler.start()
     print("waiting for game!")
