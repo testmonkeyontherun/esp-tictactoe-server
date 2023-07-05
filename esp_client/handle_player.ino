@@ -182,18 +182,18 @@ void end_game [[noreturn]]() {
   Serial.println("end_game");
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.print("Du hast wegen '");
+  display.print("Du hast wegen ");
   display.print(game_end_reason);
-  display.print("' '");
+  display.print(" ");
   display.print(game_outcome);
-  display.println("'.");
+  display.println(".");
   display.display();
   if (game_end_reason.compareTo(won_outcome)) {
     play_sound_success();
   } else {
     play_sound_failure();
   }
-  delay(1000);
+  delay(10000);
   play_sound_shutdown();
   display.clearDisplay();
   display.display();
