@@ -7,7 +7,7 @@ void setup_player() {
   display.clearDisplay();
   display.setTextColor(WHITE);
   
-  display.drawXBitmap(0, 0, splashscreen + (2*sizeof(int)), ((int*) splashscreen)[0], ((int*)splashscreen)[1], WHITE);
+  display.drawXBitmap(0, 0, splashscreen +( 2* sizeof(int16_t)), ((int16_t*) ((void *) splashscreen))[0], ((int16_t*) ((void *) splashscreen))[1], WHITE);
   display.display();
   play_sound_startup();
 
@@ -178,8 +178,7 @@ void draw_text_menu(struct menu menu, int selected_x, int selected_y) {
 
 
 void end_game [[noreturn]]() {
-  Serial.print(millis());
-  Serial.println("end_game");
+  Serial.println("you " + game_outcome + ", because of: " + game_end_reason);
   display.clearDisplay();
   display.setCursor(0, 0);
   display.print("Du hast wegen ");

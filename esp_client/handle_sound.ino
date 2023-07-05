@@ -8,7 +8,7 @@ void setup_sound() {
 }
 
 void handle_sound() {
-  if (sound_is_playing && millis() - sound_start >= sound_duration) {
+  if (sound_is_playing && (millis() - sound_start >= sound_duration)) {
     analogWrite(soundPin, 0);
     sound_is_playing = false;
   }
@@ -16,7 +16,7 @@ void handle_sound() {
 
 void play_sound_move() {
   analogWrite(soundPin, 255);
-  sound_duration = 2000;
+  sound_duration = 200;
   sound_start = millis();
 }
 
