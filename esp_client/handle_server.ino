@@ -151,7 +151,7 @@ void send_basic_request(enum client_message request) {
 
 void send_move_request(int move) {
   StaticJsonDocument<32> message;
-  message["request"] = 0;
+  message["request"] = MOVE_REQUEST;
   message["move"] = move;
   send_message(message);
 }
