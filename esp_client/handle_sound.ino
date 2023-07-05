@@ -22,7 +22,11 @@ void play_sound_move() {
 
 void play_sound_success() {
   //play_tone(hz, t in ms);
-  play_tone(750.0, 1000);
+  play_tone(500.0, 250);
+  delay(200);
+  play_tone(500.0, 250);
+  delay(100);
+  play_tone(650.0, 500);
   play_tone(750.0, 1000);
   play_tone(1000.0, 3000);
 }
