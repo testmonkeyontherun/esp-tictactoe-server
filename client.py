@@ -1,19 +1,16 @@
 import socket
-import common
+import config
 import json
 import time
 import queue
 import ctypes
 import threading
 import sys
-PORT = 12345
-SERVER = "10.42.0.1"
-ADDR = (SERVER, PORT)
-MSG_LENGTH = 100
-FORMAT = "utf-8"
+
 
 class ServerHandler:
-    KEEP_ALIVE_TIMEOUT = 4
+    #connects to a server, then handles all messages to and from it
+    KEEP_ALIVE_TIMEOUT = config.KEEP_ALIVE_TIMEOUT
 
     #client -> handler
     KEEP_ALIVE_REQUEST = 0
@@ -41,6 +38,7 @@ class ServerHandler:
         self.connection.setblocking(False)
     
     def receive(self):
+        #receive and parse a message sent by the server if no message is available, return (None, None)
         try:
             self.receive_buffer += self.connection.recv(4 - len(self.receive_buffer))
             if len(self.receive_buffer) != 4:
@@ -49,7 +47,7 @@ class ServerHandler:
             self.receive_buffer = []
             if message_length == 0:
                 return None, None
-            if message_length > 10000:
+            if message_length > config.MAX_MSG_LENGTH:
                 raise Exception("big message incoming")
             message_bytes = self.connection.recv(message_length)
             if len(message_bytes) != message_length:
@@ -62,12 +60,14 @@ class ServerHandler:
             return None, None
     
     def send(self, message, arguments):
+        #send message to the server
         message = self.encode_message(message, arguments)
         self.connection.send(message)
         self.last_outgoing_message_time = time.time()
     
     def decode_message(self, message):
-        message_string = message.decode("utf-8")
+        #parse and validate message the contents are returned as a dict
+        message_string = message.decode(config.FORMAT)
         message_dict = json.loads(message_string)
         arguments = None
         try:
@@ -79,18 +79,21 @@ class ServerHandler:
         return request, arguments
     
     def encode_message(self, message, arguments):
+        #takes a message and encodes according to docs
         message = {"request": message}
         if arguments is not None:
             message = message | arguments
         message_string = json.dumps(message)
-        message_bytes = message_string.encode("utf-8")
+        message_bytes = message_string.encode(config.FORMAT)
         length_bytes = bytes(ctypes.c_uint32(len(message_bytes)))
         return length_bytes + message_bytes
 
     def client_timed_out(self):
+        #check if the client has timed out
         return time.time() - self.last_incoming_message_time >= ServerHandler.KEEP_ALIVE_TIMEOUT
     
     def is_time_to_send_keep_alive(self):
+        #check if it is time to send KEEP_ALIVE_REQUEST
         return time.time() - self.last_outgoing_message_time >= ServerHandler.KEEP_ALIVE_TIMEOUT / 2
     
     def handle_server(self):
@@ -126,6 +129,7 @@ class ServerHandler:
                 self.send(ServerHandler.KEEP_ALIVE_REPLY, None)
     
     def disconnect(self):
+        #forfeit the game
         self.connection.close()
         print("server timed out")
         sys.exit()
@@ -133,10 +137,12 @@ class ServerHandler:
 
 user_input = queue.Queue()
 def handle_user():
+    #the main interaction point of the user, does not provide feedback
     while True:
         user_input.put(input())
 
 def draw_state(state):
+    #responsible for drawing the grid, and important messages for the user
     client_id = state["client_id"]
     if state["players"][0] == client_id:
         opponent_id = state["players"][1]
@@ -163,7 +169,7 @@ def draw_state(state):
 
 
 if __name__ == "__main__":
-    server = ServerHandler(ADDR)
+    server = ServerHandler((config.SERVER, config.PORT))
     user_handler = threading.Thread(target=handle_user, daemon=True)
     user_handler.start()
     print("waiting for game!")
@@ -171,6 +177,7 @@ if __name__ == "__main__":
     
     while True:
         try:
+            #handle the servers messages
             message, arguments = server.outgoing_queue.get_nowait()
             if message == ServerHandler.INFO_REPLY:
                 game = arguments
@@ -191,6 +198,7 @@ if __name__ == "__main__":
             pass
 
         try:
+            #validate the messages sent by user, then pass them along
             message = user_input.get_nowait()
             try:
                 message = int(message)
