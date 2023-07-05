@@ -8,8 +8,6 @@ void setup_sound() {
 }
 
 void handle_sound() {
-  Serial.print(millis());
-  Serial.println("handle_sound");
   if (sound_is_playing && millis() - sound_start >= sound_duration) {
     analogWrite(soundPin, 0);
     sound_is_playing = false;
@@ -20,18 +18,19 @@ void play_sound_move() {
   analogWrite(soundPin, 255);
   sound_duration = 2000;
   sound_start = millis();
-  // Beep Sound @ 698.456 Hz with 20ms
 }
 
 void play_sound_success() {
+  //play_tone(hz, t in ms);
   play_tone(500.0, 250);
   delay(200);
   play_tone(500.0, 250);
   delay(100);
   play_tone(650.0, 500);
 }
- 
+
 void play_sound_failure() {
+  //play_tone(hz, t in ms);
   play_tone(575.0, 400);
   delay(20);
   play_tone(525.0, 400);
@@ -39,11 +38,13 @@ void play_sound_failure() {
 }
 
 void play_sound_startup() {
+  //play_tone(hz, t in ms);
   play_tone(440.0, 300);
   play_tone(750.0, 300);
 }
 
 void play_sound_shutdown() {
+  //play_tone(hz, t in ms);
   play_tone(659.255, 600);
   play_tone(440, 600);
 }

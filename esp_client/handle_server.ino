@@ -46,8 +46,6 @@ void setup_server() {
 }
 
 void handle_server() {
-  Serial.print(millis());
-  Serial.println("handle_server");
   //handle incoming messages
   DynamicJsonDocument message(512);
   bool received_message = receive_message(&message);
@@ -98,8 +96,6 @@ char receive_buffer[max_message_length + 1] = {0};
 bool currently_receiving = false;
 int message_length = 0;
 bool receive_message(DynamicJsonDocument *result) {
-  Serial.print(millis());
-  Serial.println("receive_message");
   if (!client.connected()) {
     raise_error(server_connection_lost_error);
   }
@@ -178,9 +174,6 @@ void forfeit() {
 }
 
 void parse_game_info(DynamicJsonDocument *info) {
-  //todo crashes here
-  Serial.print(millis());
-  Serial.println("parse_game_info");
   JsonObject state = (*info)["state"];
   JsonObject state_status = state["status"];
   JsonArray state_board = state["board"];
@@ -188,7 +181,6 @@ void parse_game_info(DynamicJsonDocument *info) {
   for (size_t y = 0; y < board_height; ++y) {
     for (size_t x = 0; x < board_width; ++x) {
       int index = y * board_width + x;
-      Serial.println(index);
       if (state_board[index] == nullptr) {
         board[y][x] = 0;
       } else if (state_board[index] == client_id) {

@@ -7,7 +7,7 @@
 //state relevant to server commmunication
 const char* ssid =  "esp-server";
 const char* password = "BHir8CnjquPkX3";
-const char* serverIP = "10.42.0.39";
+const char* serverIP = "10.42.0.1";
 const int serverPort = 12345;
 const unsigned long server_timeout_time = 4000;
 unsigned long last_server_message_timestamp = 0;

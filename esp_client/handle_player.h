@@ -71,8 +71,8 @@ struct menu_entry forfeit_entrys[] = {{.a_callback = &switch_to_board, .b_callba
                                    {.a_callback = &try_forfeit, .b_callback = &switch_to_board, .name = "Aufgeben"}};                     
 
 struct menu menus[] = {[BOARD] = {.entrys = board_entrys, .width = board_width, .height = board_height, .draw = &draw_board},
-                       [MOVE] = {.entrys = move_entrys, .width = 0, .height = sizeof(move_entrys) / sizeof(move_entrys[0]), .draw = &draw_text_menu},
-                       [FORFEIT] = {.entrys = forfeit_entrys, .width = 0, .height = sizeof(forfeit_entrys) / sizeof(forfeit_entrys[0]), .draw = &draw_text_menu}};
+                       [MOVE] = {.entrys = move_entrys, .width = 1, .height = sizeof(move_entrys) / sizeof(move_entrys[0]), .draw = &draw_text_menu},
+                       [FORFEIT] = {.entrys = forfeit_entrys, .width = 1, .height = sizeof(forfeit_entrys) / sizeof(forfeit_entrys[0]), .draw = &draw_text_menu}};
 
 
 
