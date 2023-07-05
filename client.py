@@ -7,7 +7,7 @@ import ctypes
 import threading
 import sys
 PORT = 12345
-SERVER = "10.42.0.39"
+SERVER = "10.42.0.1"
 ADDR = (SERVER, PORT)
 MSG_LENGTH = 100
 FORMAT = "utf-8"

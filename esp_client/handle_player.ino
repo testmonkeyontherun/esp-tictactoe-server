@@ -152,14 +152,15 @@ void draw_text_menu(struct menu menu, int selected_x, int selected_y) {
   const int text_menu_text_size = 1;
   const int text_menu_y_offset = 1;
   const int text_menu_x_offset = 1;
+  const int text_menu_text_heigth = 6;
   display.setTextSize(text_menu_text_size);
   display.clearDisplay();
   for (size_t i = 0; i < menu.height; ++i) {
-    int upper_y = i * (text_menu_text_size + text_menu_y_offset * 2);
+    int upper_y = i * (text_menu_text_height + text_menu_y_offset * 2);
     int upper_x = text_menu_x_offset;
     if (selected_y == i) {
       //draw active cell
-      display.fillRect(upper_x, upper_y, SCREEN_WIDTH - text_menu_x_offset * 2, text_menu_text_size + text_menu_y_offset * 2, WHITE);
+      display.fillRect(upper_x, upper_y, SCREEN_WIDTH - text_menu_x_offset * 2, text_menu_text_size text_menu_text_height + text_menu_y_offset * 2, WHITE);
       display.setTextColor(BLACK);
     } else {
       display.setTextColor(WHITE);
