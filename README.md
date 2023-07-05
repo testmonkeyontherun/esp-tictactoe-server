@@ -4,7 +4,7 @@ System für Rundenbasierte mehrspieler Spiele. Als Beispielprojekt ist TicTacToe
 programmiert, das System Spieleknecht kann allerdings flexibel und mit relative wenig Aufwand 
 für andere Spiele Adaptiert werden.
 SpieleKnecht entstand im Rahmen der Projektphase des BGY21b-Mikrokontroller Kurs
-in Kooperation zwischen David, Jakob, Simon und Vincent unter Aufsicht und Unterstützung von Herr Braunschädel.
+in Kooperation zwischen Simon, Vincent, Jakob und David unter Aufsicht und Unterstützung von Herr Braunschädel.
 
 ## Hardware
 Das Projekt basiert auf dem ESP8266 in Form eines Witty Boards als Bildschirm dient ein SSD1306 OLED. Das Pinout ist
