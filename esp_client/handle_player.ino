@@ -100,7 +100,7 @@ void try_move() {
   Serial.print(millis());
   Serial.println("try_move");
   make_move(board_x, board_y);
-  board[board_x][board_y] = 1;
+  board[board_y][board_x] = 1;
   can_move = false;
   play_sound_move();
   switch_to_board();
@@ -120,7 +120,7 @@ void draw_board(struct menu menu, int selected_x, int selected_y) {
   display.drawLine(42, 0, 42, 63, WHITE);
   display.drawLine(0, 21, 63, 21, WHITE);
   display.drawLine(0, 42, 63, 42, WHITE);
-  display.setTextSize(5);
+  display.setTextSize(3);
 
   for (int x = 0; x < 3; ++x) {
     for (int y = 0; y < 3; ++y) {
@@ -143,6 +143,13 @@ void draw_board(struct menu menu, int selected_x, int selected_y) {
         display.println("O");
       }
     }
+  }
+  display.setTextSize(1);
+  display.setCursor(3*square_width, 0);
+  if (can_move) {
+    display.println("Zieh!");
+  } else {
+    display.println("Warte!");
   }
   display.display();
 }
@@ -190,5 +197,7 @@ void end_game [[noreturn]]() {
   play_sound_shutdown();
   display.clearDisplay();
   display.display();
-  while(true);
+  while(true) {
+    ESP.wdtFeed();
+  }
 }

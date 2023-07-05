@@ -139,6 +139,7 @@ void send_message(DynamicJsonDocument message) {
   for (size_t i = 0; i < message_length_width; ++i) {
     client.write(send_buffer[i]); //necessary to fix endianness
   }
+  Serial.print(&send_buffer[message_length_width]);
   client.print(&send_buffer[message_length_width]);
   last_client_message_timestamp = millis();
 }
@@ -151,7 +152,7 @@ void send_basic_request(enum client_message request) {
 
 void send_move_request(int move) {
   StaticJsonDocument<32> message;
-  message["request"] = 0;
+  message["request"] = MOVE_REQUEST;
   message["move"] = move;
   send_message(message);
 }
