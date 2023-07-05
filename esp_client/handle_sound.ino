@@ -15,11 +15,12 @@ void handle_sound() {
 }
 
 void play_sound_move() {
+  //uses pwm to play a 500hz beep, other sound is not possible during multitasking
   analogWrite(soundPin, 255);
   sound_duration = 200;
   sound_start = millis();
 }
-
+//these are possible, because when they are played multitasking is either not yet or no longer running
 void play_sound_success() {
   //play_tone(hz, t in ms);
   play_tone(500.0, 250);
@@ -50,6 +51,7 @@ void play_sound_shutdown() {
 }
 
 void play_tone(float frequenz, unsigned long duration) {
+  //bit bangs sound into the speaker not multitaskable
   unsigned long start = millis();
   while (millis() - start < duration) {
     digitalWrite(soundPin, HIGH);

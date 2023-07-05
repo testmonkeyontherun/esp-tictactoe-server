@@ -6,6 +6,7 @@
 #include "handle_player.h"
 #include "handle_sound.h"
 
+//this client supports rudamentary multitasking. to register a task, create a struct task.
 struct task {
   void (*task_function) (void);
   unsigned long call_interval_in_millis;
@@ -30,6 +31,7 @@ void setup(){
 }
 
 void multitask(struct task *tasks, size_t n_tasks) {
+  //run each task, if its interval is met
   while (true) {
     for (size_t i = 0; i < n_tasks; ++i) {
       ESP.wdtFeed();
@@ -46,6 +48,7 @@ void loop() {
 }
 
 void combined_print(String to_print) {
+  //print to serial and to screen
   Serial.println(to_print);
   display.setTextSize(1);
   display.clearDisplay();
