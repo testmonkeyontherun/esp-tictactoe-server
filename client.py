@@ -9,6 +9,7 @@ import sys
 
 
 class ServerHandler:
+    #connects to a server, then handles all messages to and from it
     KEEP_ALIVE_TIMEOUT = config.KEEP_ALIVE_TIMEOUT
 
     #client -> handler
@@ -37,6 +38,7 @@ class ServerHandler:
         self.connection.setblocking(False)
     
     def receive(self):
+        #receive and parse a message sent by the server if no message is available, return (None, None)
         try:
             self.receive_buffer += self.connection.recv(4 - len(self.receive_buffer))
             if len(self.receive_buffer) != 4:
@@ -58,11 +60,13 @@ class ServerHandler:
             return None, None
     
     def send(self, message, arguments):
+        #send message to the server
         message = self.encode_message(message, arguments)
         self.connection.send(message)
         self.last_outgoing_message_time = time.time()
     
     def decode_message(self, message):
+        #parse and validate message the contents are returned as a dict
         message_string = message.decode(config.FORMAT)
         message_dict = json.loads(message_string)
         arguments = None
@@ -75,6 +79,7 @@ class ServerHandler:
         return request, arguments
     
     def encode_message(self, message, arguments):
+        #takes a message and encodes according to docs
         message = {"request": message}
         if arguments is not None:
             message = message | arguments
@@ -84,9 +89,11 @@ class ServerHandler:
         return length_bytes + message_bytes
 
     def client_timed_out(self):
+        #check if the client has timed out
         return time.time() - self.last_incoming_message_time >= ServerHandler.KEEP_ALIVE_TIMEOUT
     
     def is_time_to_send_keep_alive(self):
+        #check if it is time to send KEEP_ALIVE_REQUEST
         return time.time() - self.last_outgoing_message_time >= ServerHandler.KEEP_ALIVE_TIMEOUT / 2
     
     def handle_server(self):
@@ -122,6 +129,7 @@ class ServerHandler:
                 self.send(ServerHandler.KEEP_ALIVE_REPLY, None)
     
     def disconnect(self):
+        #forfeit the game
         self.connection.close()
         print("server timed out")
         sys.exit()
@@ -129,10 +137,12 @@ class ServerHandler:
 
 user_input = queue.Queue()
 def handle_user():
+    #the main interaction point of the user, does not provide feedback
     while True:
         user_input.put(input())
 
 def draw_state(state):
+    #responsible for drawing the grid, and important messages for the user
     client_id = state["client_id"]
     if state["players"][0] == client_id:
         opponent_id = state["players"][1]
@@ -167,6 +177,7 @@ if __name__ == "__main__":
     
     while True:
         try:
+            #handle the servers messages
             message, arguments = server.outgoing_queue.get_nowait()
             if message == ServerHandler.INFO_REPLY:
                 game = arguments
@@ -187,6 +198,7 @@ if __name__ == "__main__":
             pass
 
         try:
+            #validate the messages sent by user, then pass them along
             message = user_input.get_nowait()
             try:
                 message = int(message)

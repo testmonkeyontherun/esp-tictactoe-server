@@ -13,6 +13,7 @@ import json
 import ctypes
 
 class Player:
+    #abstraction, so the game does not have to handle potentially diferent clients
     def __init__(self, id, queue):
         self.id = id
         self.queue = queue
@@ -22,6 +23,7 @@ class Player:
         return self.id
     
 class Game:
+    #responsible for all game logic.
     def __init__(self, players):
         self.players = players
         self.board = [None] * 9
@@ -39,6 +41,7 @@ class Game:
         return game_to_return
 
     def move(self, player, move):
+        #process move request
         if not self.is_running():
             return False
         #check for move out of turn
@@ -55,6 +58,7 @@ class Game:
         self.change_turn()
         return True
     def check_win(self):
+        #check if some player won the game
         won, winner = False, None
         if self.board[0] == self.board[1] and self.board[0] == self.board[2] and self.board[0] is not None:
             won, winner = True, self.board[0]
@@ -82,16 +86,20 @@ class Game:
             self.status = {"winner": None, "current_state": "draw", "reason": "All-squares-filled"}
         
     def change_turn(self):
+        #helper function for changing the state after each turn
         if self.is_running():
             self.to_move = self.get_player_by_turn_number(self.turn_number)
             self.turn_number += 1
     def move_is_valid(self, move):
+        #bounds checking
         return move >= 0 and move <= 8 and self.board[move] is None
     
     def is_running(self):
+        #as it says
         return self.status["current_state"] == "playing"
     
     def forfeit(self, player):
+        #inform all players about a forfeit, then end the game
         for index, current_player in enumerate(self.players):
             if current_player == player:
                 winning_index = index + 1
@@ -102,11 +110,14 @@ class Game:
         self.status = {"winner": winner, "current_state": "won", "reason": "forfeit"}
 
     def get_player_by_turn_number(self, turn_number):
+        #lookup
         return self.players[turn_number % len(self.players)]
     def encode(self):
+        #for sending to the players
         return {"board": self.board, "players": self.players, "to_move": self.to_move, "turn_number": self.turn_number, "status": self.status}
 
 class GameManager:
+    #Players make request, the game processes them in order and replys if necessary
     #handler -> game
     DISCONNECT_REQUEST = 0
     MOVE_REQUEST = 1
@@ -129,10 +140,12 @@ class GameManager:
         self.run()
 
     def sendall(self, message):
+        #broadcast to all players
         for player in self.players:
             player.send(message)
 
     def get_player_by_id(self, id):
+        #lookup
         for pos, player in enumerate(self.players):
             if id == player.get_id():
                 return self.players[pos]
@@ -140,6 +153,7 @@ class GameManager:
             raise Exception("Unknown Player")
     
     def make_move(self, player, move):
+        # process move request informs all players about changes after each move
         if not self.game.move(player, move):
             self.get_player_by_id(player).send((GameManager.ILLEGAL_MOVE_REPLY, None))
             return False
@@ -151,6 +165,7 @@ class GameManager:
         return False
     
     def run(self):
+        #main loop, on each iteration processes one request
         self.sendall((GameManager.INFO_REPLY, self.game.copy()))
         while True:
             sender, message, arguments = self.input_queue.get()
@@ -168,6 +183,7 @@ class GameManager:
                 raise Exception("unknown request")   
 
 class GameRequest:
+    # used to request a game from the matchmaker. Can be invalidated before the matchmaker processes it.
     def __init__(self, player):
         self.player = player
         self.valid = True
@@ -187,6 +203,7 @@ class GameRequest:
 
 pending_GameRequests = queue.Queue()
 def match_maker():
+    #finds matches for all game requests. first come first serve, no ranking / other fancy features
     current_request = None
     while True: # might add players to game until the game decides that it is full? better for compat TODO
         if pending_GameRequests.qsize() >= 2:
@@ -208,6 +225,7 @@ def match_maker():
                     new_game = GameManager(players)
 
 class ClientHandler:
+    #responsible for actually talking to a client
     GAME_REQUEST_TIMEOUT = 100
     KEEP_ALIVE_TIMEOUT = config.KEEP_ALIVE_TIMEOUT
 
@@ -244,6 +262,7 @@ class ClientHandler:
         self.last_incoming_message_time = time.time() #don't hold your fuck ups against the client
         self.handle_client()
     def receive(self):
+        #parse and validate message
         try:
             self.receive_buffer += self.connection.recv(4 - len(self.receive_buffer))
             if len(self.receive_buffer) != 4:
@@ -253,9 +272,11 @@ class ClientHandler:
             if message_length == 0:
                 return None, None
             if message_length > config.MAX_MSG_LENGTH:
+                self.disconnect()
                 raise Exception(f"big message incoming {message_length}")
             message_bytes = self.connection.recv(message_length)
             if len(message_bytes) != message_length:
+                self.disconnect()
                 raise Exception("too few bytes sent")
             message, arguments = self.decode_message(message_bytes)
             if message is not None:
@@ -265,11 +286,13 @@ class ClientHandler:
             return None, None
     
     def send(self, message, arguments):
+        #send reply to client
         message = self.encode_message(message, arguments)
         self.connection.send(message)
         self.last_outgoing_message_time = time.time()
     
     def decode_message(self, message):
+        #decode client request
         message_string = message.decode(config.FORMAT)
         message_dict = json.loads(message_string)
         arguments = None
@@ -282,6 +305,7 @@ class ClientHandler:
         return request, arguments
     
     def encode_message(self, message, arguments):
+        #encode reply
         message = {"request": message}
         if arguments is not None:
             message = message | arguments
@@ -290,7 +314,7 @@ class ClientHandler:
         length_bytes = bytes(ctypes.c_uint32(len(message_bytes)))
         return length_bytes + message_bytes
 
-    
+    # bunch of helper functions
     def encode_game(self):
         return {"state": self.game_state.encode() | {"client_id": self.player.get_id()}}
 
@@ -304,6 +328,7 @@ class ClientHandler:
         return time.time() - self.game_request_time >= ClientHandler.GAME_REQUEST_TIMEOUT
     
     def send_to_game(self, message, arguments):
+        #create message for sending to game
         if not self.game_exists:
             self.internal_queue.put((self.player.get_id(), message, arguments))
         else:
@@ -357,7 +382,7 @@ class ClientHandler:
                     self.connection.close()
                     return
 
-            except queue.Empty:
+            except queue.Empty: #no messages to handle
                 if not self.game_exists and self.matchmaking_timed_out():
                     self.disconnect()
                     return
@@ -375,7 +400,7 @@ class ClientHandler:
                 self.outgoing_queue = self.incoming_queue.get()
         self.send_to_game(GameManager.DISCONNECT_REQUEST, None)
 
-def server_frontend():
+def server_frontend(): #listens to new clients, then spins up the necessary worker threads
     match_maker_worker = threading.Thread(target=match_maker, daemon=True)
     match_maker_worker.start()
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
