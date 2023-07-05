@@ -185,7 +185,7 @@ void forfeit() {
   //forfeits the game and stops the client
   send_basic_request(DISCONNECT_REQUEST);
   game_outcome = lost_outcome;
-  game_end_reason = forfeit_reason
+  game_end_reason = forfeit_reason;
   client.stop();
   end_game();
 }
