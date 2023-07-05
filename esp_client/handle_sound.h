@@ -5,7 +5,7 @@ unsigned long sound_duration;
 unsigned long sound_is_playing;
 unsigned long sound_polling_interval = 0;
 
-void play_sound_success(); //TODO
+void play_sound_success();
 void play_sound_failure();
 void play_sound_startup();
 void play_sound_shutdown();

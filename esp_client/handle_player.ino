@@ -31,6 +31,8 @@ void handle_player() {
     }
   }
   //menu navigation
+  //menus can be configured with much freedom, by providing a name, widht, height, renderer, and callbacks for each menu option
+  //this way the same code can handle navigating the board and both different text menus
   if (new_buttons[buttonUpPin]) {
     if (selected_y > 0) {
       --selected_y;
@@ -81,6 +83,7 @@ void switch_menu(enum menu_types new_menu) {
 }
 
 void board_a_pressed() {
+  //check if a move is legal, if so open movemenu
   if (board[selected_y][selected_x] == 0 && can_move) {
     switch_menu(MOVE);
   }
@@ -88,6 +91,7 @@ void board_a_pressed() {
 }
 
 void board_b_pressed() {
+  //open forfeit menu
   switch_menu(FORFEIT);
   play_sound_move();
 }
@@ -97,6 +101,7 @@ void switch_to_board() {
 }
 
 void try_move() {
+  //sends move request to server, also changes the local state, until the next info reply arrives
   make_move(board_x, board_y);
   board[board_y][board_x] = 1;
   can_move = false;
@@ -105,6 +110,7 @@ void try_move() {
 }
 
 void try_forfeit() {
+  //forfeit the game
   forfeit();
   game_end_reason = forfeit_reason;
   game_outcome = lost_outcome;
@@ -113,6 +119,7 @@ void try_forfeit() {
 
 
 void draw_board(struct menu menu, int selected_x, int selected_y) {
+  //drawing the board
   display.clearDisplay();
   display.drawLine(21, 0, 21, 63, WHITE);
   display.drawLine(42, 0, 42, 63, WHITE);
@@ -120,6 +127,7 @@ void draw_board(struct menu menu, int selected_x, int selected_y) {
   display.drawLine(0, 42, 63, 42, WHITE);
   display.setTextSize(3);
 
+  //draw each cell, the active cell is highlighted
   for (int x = 0; x < 3; ++x) {
     for (int y = 0; y < 3; ++y) {
       int upper_x = x * square_width;
@@ -142,6 +150,7 @@ void draw_board(struct menu menu, int selected_x, int selected_y) {
       }
     }
   }
+  //draw move_status
   display.setTextSize(1);
   display.setCursor(3*square_width, 0);
   if (can_move) {
@@ -153,7 +162,7 @@ void draw_board(struct menu menu, int selected_x, int selected_y) {
 }
 
 void draw_text_menu(struct menu menu, int selected_x, int selected_y) {
-  //TODO tune textsize and offset
+  //draw all kinds of text based menus, active selection is highlighted
   const int text_menu_text_size = 1;
   const int text_menu_y_offset = 1;
   const int text_menu_x_offset = 1;
@@ -178,6 +187,7 @@ void draw_text_menu(struct menu menu, int selected_x, int selected_y) {
 
 
 void end_game [[noreturn]]() {
+  //called if the game has ended. prints out reasons
   Serial.println("you " + game_outcome + ", because of: " + game_end_reason);
   display.clearDisplay();
   display.setCursor(0, 0);
