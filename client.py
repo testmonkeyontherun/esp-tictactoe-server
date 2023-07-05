@@ -101,7 +101,6 @@ class ServerHandler:
             if request is None or request == ServerHandler.KEEP_ALIVE_REPLY:
                 pass
             elif request == ServerHandler.GAME_ENDED_REPLY:
-                self.connection.accept
                 self.outgoing_queue.put((request, arguments))
                 return
             else:

@@ -96,7 +96,7 @@ char receive_buffer[max_message_length + 1] = {0};
 bool currently_receiving = false;
 int message_length = 0;
 bool receive_message(DynamicJsonDocument *result) {
-  if (!client.connected()) {
+  if (!client.connected() && client.available() < message_length) {
     raise_error(server_connection_lost_error);
   }
   if (!currently_receiving) {
@@ -126,6 +126,7 @@ bool receive_message(DynamicJsonDocument *result) {
     raise_error(invalid_reply_error);
   }
   last_server_message_timestamp = millis();
+  message_length = 0;
   return true;
 }
 char send_buffer[max_message_length + message_length_width] = {0};
@@ -191,8 +192,6 @@ void parse_game_info(DynamicJsonDocument *info) {
     }
   }
   can_move = state["to_move"] == client_id;
-  if (!strcmp(state_status["current_state"], "playing")) {
-    game_outcome = String(state_status["current_state"]);
-    game_end_reason = String(state_status["reason"]);
-  }
+  game_outcome = String(state_status["current_state"]);
+  game_end_reason = String(state_status["reason"]);
 }
