@@ -29,8 +29,7 @@ Der server wird durch
 $ python server.py
 ```
 gestartet. Der ESP verbindet sich nach dem einschalten mit dem in esp_client/server.h konfigurierten WiFi und Server. Wenn nur ein ESP zur verfügung steht kann ein weiterer client über
-Der server wird durch
 ```console
-$ python server.py
+$ python client.py
 ```
 gestartet werden.
