@@ -139,7 +139,6 @@ void send_message(DynamicJsonDocument message) {
   for (size_t i = 0; i < message_length_width; ++i) {
     client.write(send_buffer[i]); //necessary to fix endianness
   }
-  Serial.print(&send_buffer[message_length_width]);
   client.print(&send_buffer[message_length_width]);
   last_client_message_timestamp = millis();
 }

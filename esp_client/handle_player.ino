@@ -97,8 +97,6 @@ void switch_to_board() {
 }
 
 void try_move() {
-  Serial.print(millis());
-  Serial.println("try_move");
   make_move(board_x, board_y);
   board[board_y][board_x] = 1;
   can_move = false;
@@ -180,6 +178,8 @@ void draw_text_menu(struct menu menu, int selected_x, int selected_y) {
 
 
 void end_game [[noreturn]]() {
+  Serial.print(millis());
+  Serial.println("end_game");
   display.clearDisplay();
   display.setCursor(0, 0);
   display.print("Du hast wegen '");
