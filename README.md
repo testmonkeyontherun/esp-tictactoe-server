@@ -12,6 +12,7 @@ Das Projekt basiert auf dem ESP8266 in Form eines Witty Boards als Bildschirm di
 (up, down, left, right, a, b) sind Active-Low Taster.
 
 ![image](https://github.com/testmonkeyontherun/esp-tictactoe-server/blob/main/Schaltung.png)
+![image](https://github.com/testmonkeyontherun/esp-tictactoe-server/blob/main/SchaltplanZeichnung.png)
 
 
 ## Installation & Nutzung
