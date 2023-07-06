@@ -11,6 +11,9 @@ Das Projekt basiert auf dem ESP8266 in Form eines Witty Boards als Bildschirm di
 (up, down, left, right, a, b, sck, sda, speaker) zu (D7, RX, D6, D5, D4, D3, D1, D2, D8) in der gleichen Reihenfolge.
 (up, down, left, right, a, b) sind Active-Low Taster.
 
+![image](https://prnt.sc/TFuKTRyUzA9f.png)
+
+
 ## Installation & Nutzung
 ### ESP Client:
 Der [ESP8266](https://github.com/esp8266/Arduino) muss erst in der Arduino-IDE installiert werden.
